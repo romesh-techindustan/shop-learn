@@ -1,6 +1,6 @@
 import { toast } from "react-toastify";
 import frame760 from "../assets/Frame 760.png";
-import axiosInstance, { setItemInLocalStorage } from "../axios/ index";
+import { setItemInLocalStorage } from "../axios/ index";
 import { isValidEmailOrPhone } from "../common/common";
 import "./SignUpPage.css";
 import { useForm } from "react-hook-form";

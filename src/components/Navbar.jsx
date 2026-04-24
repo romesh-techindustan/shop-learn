@@ -1,4 +1,4 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import cartIcon from "../assets/icons/Cart1.svg";
 import cancelIcon from "../assets/icons/icon-cancel.svg";
 import logoutIcon from "../assets/icons/Icon-logout.svg";
@@ -20,22 +20,22 @@ const accountMenuItems = [
         id: "account",
         label: "Manage My Account",
         icon: userIcon,
-        src: "/profile",
+        to: "/account",
     },
-    { id: "order", label: "My Order", icon: orderIcon, src: "/orders" },
+    { id: "order", label: "My Order", icon: orderIcon, to: "/orders" },
     {
         id: "cancel",
         label: "My Cancellations",
         icon: cancelIcon,
-        src: "/cancelled-orders",
+        to: "/cancelled-orders",
     },
     {
         id: "reviews",
         label: "My Reviews",
         icon: reviewsIcon,
-        src: "/my-reviews",
+        to: "/my-reviews",
     },
-    { id: "logout", label: "Logout", icon: logoutIcon, src: "/auth/log-out" },
+    { id: "logout", label: "Logout", icon: logoutIcon, to: "/auth/login" },
 ];
 
 function getStoredUser() {
@@ -91,8 +91,6 @@ function Navbar() {
             : pathname.startsWith("/auth/sign-up")
               ? "sign-up"
               : "";
-    const navigate = useNavigate();
-
     const handleClick = (item) => {
         if (item.id === "logout") {
             localStorage.removeItem("userDetail");
@@ -177,23 +175,23 @@ function Navbar() {
                                 <img alt="" src={wishlistIcon} />
                             </button>
 
-                            <button
+                            <Link
                                 aria-label="Cart"
                                 className="navbar__tool navbar__tool--cart"
-                                type="button"
+                                to="/cart"
                             >
                                 <img alt="" src={cartIcon} />
                                 <span className="navbar__tool-badge">2</span>
-                            </button>
+                            </Link>
 
                             {isLoggedIn ? (
-                                <button
+                                <Link
                                     aria-label={`Account for ${userName}`}
                                     className="navbar__tool navbar__tool--user navbar__account-initials"
-                                    type="button"
+                                    to="/account"
                                 >
                                     {userInitials}
-                                </button>
+                                </Link>
                             ) : (
                                 <Link
                                     aria-label="Account"
@@ -206,14 +204,15 @@ function Navbar() {
 
                             <div className="navbar__user-menu">
                                 {accountMenuItems.map((item) => (
-                                    <button
+                                    <Link
                                         className="navbar__menu-item"
                                         key={item.id}
-                                        type="button"
+                                        onClick={() => handleClick(item)}
+                                        to={item.to}
                                     >
                                         <img alt="" src={item.icon} />
                                         <span>{item.label}</span>
-                                    </button>
+                                    </Link>
                                 ))}
                             </div>
                         </div>
