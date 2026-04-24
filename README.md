@@ -18,3 +18,6 @@ If you are developing a production application, we recommend using TypeScript wi
 
 REFERENCE DESIGN:
 https://www.figma.com/design/PYaojbJb2r8wiLTYEOLINJ/Full-E-Commerce-Website-UI-UX-Design--Community-?node-id=1-3&p=f&t=3vOgEuDvwXG69Htq-0
+
+SEEDER:
+npm run seed:products
