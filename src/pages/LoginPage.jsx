@@ -1,16 +1,14 @@
-import { useState } from "react";
 import frame760 from "../assets/Frame 760.png";
-import { isValidEmailOrPhone } from "../common/common";
 import "./SignUpPage.css";
 import { useForm } from "react-hook-form";
-import axiosInstance, { setAccessToken } from "../axios/ index";
+import { setAccessToken, setItemInLocalStorage } from "../axios/ index";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import { login } from "../api/auth";
 
 function LoginPage() {
     const navigate = useNavigate();
     const {
-        watch,
         register,
         handleSubmit,
         reset,
@@ -18,20 +16,19 @@ function LoginPage() {
     } = useForm();
     const onSubmit = async (data) => {
         try {
-            const response = await axiosInstance.post("/auth/login", {
-                email: data.contact,
-                password: data.password,
-            });
-            const accessToken = response.data?.accessToken;
+            const { response, accessToken } = await login(data);
 
             if (accessToken) {
                 setAccessToken(accessToken);
+                setItemInLocalStorage("userDetail", response);
+                navigate("/");
             }
 
             reset();
-            navigate("/")
         } catch (error) {
-            const errMsg = error.response?.data?.message || 'Something went wrong';
+            const errMsg =
+                error.response?.data?.message || "Something went wrong";
+
             toast.error(errMsg);
             reset();
         }

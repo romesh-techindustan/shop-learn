@@ -1,3 +1,8 @@
+.navbar {
+  position: relative;
+  z-index: 20;
+}
+
 .navbar__promo {
   background: #111111;
   color: #fafafa;
@@ -38,6 +43,8 @@
 }
 
 .navbar__header {
+  position: relative;
+  z-index: 20;
   border-bottom: 1px solid rgba(0, 0, 0, 0.12);
   background: rgba(255, 255, 255, 0.92);
   backdrop-filter: blur(10px);
@@ -163,6 +170,16 @@
   height: 32px;
 }
 
+.navbar__account-initials {
+  border-radius: 50%;
+  background: #db4444;
+  color: #ffffff;
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0;
+  line-height: 1;
+}
+
 .navbar__tool-badge {
   position: absolute;
   top: -1px;
@@ -198,7 +215,7 @@
   pointer-events: none;
   transform: translateY(10px);
   transition: opacity 180ms ease, transform 180ms ease;
-  z-index: 8;
+  z-index: 100;
 }
 
 .navbar__icon-group:hover .navbar__user-menu,

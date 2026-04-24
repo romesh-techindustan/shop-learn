@@ -1,8 +1,5 @@
 import axiosInstance from "../axios/ index";
-
-function unwrapResponse(response) {
-  return response.data?.data;
-}
+import { unwrapResponse } from "../common/common";
 
 export async function getCart() {
   const response = await axiosInstance.get("/cart");

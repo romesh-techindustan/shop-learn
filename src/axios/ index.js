@@ -1,6 +1,6 @@
 import axios from "axios"; 
 
-export const ACCESS_TOKEN_STORAGE_KEY = "shop_access_token";
+export const ACCESS_TOKEN_STORAGE_KEY = "access_token";
 
 const axiosInstance = axios.create({
   baseURL : "http://localhost:3000",
@@ -31,6 +31,22 @@ export function setAccessToken(token) {
 
 export function clearAccessToken() {
   window.localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+}
+
+export function setItemInLocalStorage( key, value ) {
+  if (!key) {
+    console.error("LocalStorage Error: key is required");
+    return;
+  }
+
+  try {
+    const stringValue =
+      typeof value === "string" ? value : JSON.stringify(value);
+
+    window.localStorage.setItem(key, stringValue);
+  } catch (error) {
+    console.error("LocalStorage Error:", error);
+  }
 }
 
 export default axiosInstance;    

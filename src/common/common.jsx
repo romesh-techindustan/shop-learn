@@ -28,3 +28,8 @@ export function formatPrice(value) {
         maximumFractionDigits: 0,
     }).format(value);
 }
+
+export function unwrapResponse(response) {
+    const { data, ...rest } = response.data;
+    return { response: data, status: response.status, ...rest };
+}
