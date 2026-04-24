@@ -1,3 +1,4 @@
+import { toast } from "react-toastify";
 import frame760 from "../assets/Frame 760.png";
 import axiosInstance from "../axios/ index";
 import { isValidEmailOrPhone } from "../common/common";
@@ -10,6 +11,7 @@ function SignUpPage() {
     const {
         register,
         handleSubmit,
+        reset,
         formState: { errors },
     } = useForm();
 
@@ -20,11 +22,15 @@ function SignUpPage() {
                 email: data.contact,
                 password: data.password,
             });
-            // if (status === 200 || status === 201) {
-            //     navigate("/auth/login");
-            // }
+            if (status === 200 || status === 201) {
+                reset();
+                navigate("/auth/login");
+            }
         } catch (error) {
             console.error(error.response?.data?.message, "werwerwewer");
+            const errMsg = error.response?.data?.message|| "Something went wrong";
+            toast.error(errMsg)
+            reset();
         }
     };
 

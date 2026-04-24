@@ -1,11 +1,26 @@
 import { Link, useLocation } from 'react-router-dom'
+import cartIcon from '../assets/icons/Cart1.svg'
+import cancelIcon from '../assets/icons/icon-cancel.svg'
+import logoutIcon from '../assets/icons/Icon-logout.svg'
+import orderIcon from '../assets/icons/icon-mallbag.svg'
+import reviewsIcon from '../assets/icons/Icon-Reviews.svg'
+import userIcon from '../assets/icons/user.svg'
+import wishlistIcon from '../assets/icons/Wishlist.svg'
 import './Navbar.css'
 
 const navItems = [
-  { id: 'home', label: 'Home' },
+  { id: 'home', label: 'Home', to: '/' },
   { id: 'contact', label: 'Contact' },
   { id: 'about', label: 'About' },
   { id: 'sign-up', label: 'Sign Up', to: '/auth/sign-up' },
+]
+
+const accountMenuItems = [
+  { id: 'account', label: 'Manage My Account', icon: userIcon },
+  { id: 'order', label: 'My Order', icon: orderIcon },
+  { id: 'cancel', label: 'My Cancellations', icon: cancelIcon },
+  { id: 'reviews', label: 'My Reviews', icon: reviewsIcon },
+  { id: 'logout', label: 'Logout', icon: logoutIcon },
 ]
 
 function SearchIcon() {
@@ -25,7 +40,7 @@ function SearchIcon() {
 
 function Navbar() {
   const { pathname } = useLocation()
-  const activeItem = pathname.startsWith('/auth/sign-up') ? 'sign-up' : ''
+  const activeItem = pathname === '/' ? 'home' : pathname.startsWith('/auth/sign-up') ? 'sign-up' : ''
 
   return (
     <div className="navbar">
@@ -46,7 +61,7 @@ function Navbar() {
 
       <header className="navbar__header">
         <div className="app-shell__container navbar__header-inner">
-          <Link className="navbar__brand" to="/auth/sign-up">
+          <Link className="navbar__brand" to="/">
             Exclusive
           </Link>
 
@@ -71,15 +86,41 @@ function Navbar() {
             )}
           </nav>
 
-          <label className="navbar__search">
-            <span className="navbar__sr-only">Search products</span>
-            <input
-              aria-label="Search products"
-              placeholder="What are you looking for?"
-              type="text"
-            />
-            <SearchIcon />
-          </label>
+          <div className="navbar__tools">
+            <label className="navbar__search">
+              <span className="navbar__sr-only">Search products</span>
+              <input
+                aria-label="Search products"
+                placeholder="What are you looking for?"
+                type="text"
+              />
+              <SearchIcon />
+            </label>
+
+            <div className="navbar__icon-group">
+              <button aria-label="Wishlist" className="navbar__tool" type="button">
+                <img alt="" src={wishlistIcon} />
+              </button>
+
+              <button aria-label="Cart" className="navbar__tool navbar__tool--cart" type="button">
+                <img alt="" src={cartIcon} />
+                <span className="navbar__tool-badge">2</span>
+              </button>
+
+              <Link aria-label="Account" className="navbar__tool navbar__tool--user" to="/auth/login">
+                <img alt="" src={userIcon} />
+              </Link>
+
+              <div className="navbar__user-menu">
+                {accountMenuItems.map((item) => (
+                  <button className="navbar__menu-item" key={item.id} type="button">
+                    <img alt="" src={item.icon} />
+                    <span>{item.label}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
         </div>
       </header>
     </div>

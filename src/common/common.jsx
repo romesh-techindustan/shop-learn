@@ -20,3 +20,11 @@ export function isValidEmailOrPhone(value) {
         digitsOnly.length <= 15
     );
 }
+
+export function formatPrice(value) {
+    return new Intl.NumberFormat("en-US", {
+        style: "currency",
+        currency: "USD",
+        maximumFractionDigits: 0,
+    }).format(value);
+}

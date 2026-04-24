@@ -3,27 +3,37 @@ import frame760 from "../assets/Frame 760.png";
 import { isValidEmailOrPhone } from "../common/common";
 import "./SignUpPage.css";
 import { useForm } from "react-hook-form";
-import axiosInstance from "../axios/ index";
+import axiosInstance, { setAccessToken } from "../axios/ index";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
 
 function LoginPage() {
+    const navigate = useNavigate();
     const {
         watch,
         register,
         handleSubmit,
+        reset,
         formState: { errors },
     } = useForm();
-    console.log(watch("password"), "@34234234234");
     const onSubmit = async (data) => {
         try {
             const response = await axiosInstance.post("/auth/login", {
                 email: data.contact,
                 password: data.password,
             });
-            console.log(response);
+            const accessToken = response.data?.accessToken;
+
+            if (accessToken) {
+                setAccessToken(accessToken);
+            }
+
+            reset();
+            navigate("/")
         } catch (error) {
-            const errMsg = error.response?.data?.message;
+            const errMsg = error.response?.data?.message || 'Something went wrong';
             toast.error(errMsg);
+            reset();
         }
     };
 
