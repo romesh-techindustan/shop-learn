@@ -1,4 +1,9 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { addToCart } from "../api/cart";
+import { getCategories, getProducts } from "../api/products";
 import bookselfImage from "../assets/bookself.png";
 import bootImage from "../assets/boot.png";
 import cameraImage from "../assets/camera.png";
@@ -11,12 +16,6 @@ import userServiceIcon from "../assets/icons/Icon-Customer-service.svg";
 import secureServiceIcon from "../assets/icons/Icon-secure.svg";
 import deliveryServiceIcon from "../assets/icons/icon-delivery.svg";
 import appleLogo from "../assets/icons/1200px-Apple_gray_logo 1.svg";
-import cameraCategoryIcon from "../assets/icons/Category-Camera.svg";
-import cellphoneIcon from "../assets/icons/Category-CellPhone.svg";
-import computerIcon from "../assets/icons/Category-Computer.svg";
-import gamepadCategoryIcon from "../assets/icons/Category-Gamepad.svg";
-import headphoneIcon from "../assets/icons/Category-Headphone.svg";
-import smartwatchIcon from "../assets/icons/Category-SmartWatch.svg";
 import arrowRightIcon from "../assets/icons/icons arrow-right.svg";
 import iPhoneImage from "../assets/iphone.png";
 import jacketImage from "../assets/jacket.png";
@@ -48,15 +47,6 @@ const heroCategories = [
     { label: "Baby's & Toys" },
     { label: "Groceries & Pets" },
     { label: "Health & Beauty" },
-];
-
-const browseCategories = [
-    { label: "Phones", image: cellphoneIcon },
-    { label: "Computers", image: computerIcon },
-    { label: "SmartWatch", image: smartwatchIcon },
-    { label: "Camera", image: cameraCategoryIcon },
-    { label: "HeadPhones", image: headphoneIcon },
-    { label: "Gaming", image: gamepadCategoryIcon },
 ];
 
 const flashSaleProducts = [
@@ -257,6 +247,62 @@ const featureTimerValues = [
     { label: "Seconds", value: "35" },
 ];
 
+const productThemes = [
+    "rose",
+    "neon",
+    "ember",
+    "sand",
+    "mint",
+    "cocoa",
+    "aqua",
+    "brass",
+    "slate",
+    "violet",
+    "citrus",
+    "midnight",
+    "noir",
+];
+
+const productFallbackImages = [
+    joystickImage,
+    keyboardImage,
+    monitorImage,
+    chairImage,
+    coatImage,
+    bagImage,
+    wooferImage,
+    cameraImage,
+    laptopImage,
+    cosmeticImage,
+    bootImage,
+    jacketImage,
+];
+
+function normalizeApiProduct(product, index) {
+    return {
+        ...product,
+        image:
+            product.image ||
+            productFallbackImages[index % productFallbackImages.length],
+        price: Number(product.price ?? 0),
+        rating: 5,
+        reviews: Number(product.stock ?? 0),
+        theme: productThemes[index % productThemes.length],
+        showCart: true,
+        colors: product.color ? [product.color] : undefined,
+    };
+}
+
+function getSectionProducts(apiProducts, start, length, fallbackProducts) {
+    const sectionProducts = apiProducts.slice(start, start + length);
+
+    return sectionProducts.length ? sectionProducts : fallbackProducts;
+}
+
+function getApiErrorMessage(error) {
+    return error.response?.data?.message || "Something went wrong";
+}
+
 const featuredArrivals = [
     {
         title: "PlayStation 5",
@@ -287,6 +333,103 @@ const featuredArrivals = [
 ];
 
 function HomePage() {
+    const navigate = useNavigate();
+    const [apiProducts, setApiProducts] = useState([]);
+    const [addingProductId, setAddingProductId] = useState("");
+    const [apiCategories, setApiCategories] = useState([]);
+
+    useEffect(() => {
+        let isMounted = true;
+
+        async function loadProducts() {
+            try {
+                const { response } = await getProducts({ limit: 12 });
+                const products = response?.items ?? [];
+
+                if (isMounted) {
+                    setApiProducts(products.map(normalizeApiProduct));
+                }
+            } catch {
+                if (isMounted) {
+                    setApiProducts([]);
+                }
+            }
+        }
+
+        async function loadCategories() {
+            try {
+                const { response } = await getCategories();
+                
+            } catch {
+                if (isMounted) {
+                    setApiProducts([]);
+                }
+            }
+        }
+
+        loadProducts();
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
+
+    const flashProducts = getSectionProducts(
+        apiProducts,
+        0,
+        5,
+        flashSaleProducts,
+    );
+    const bestProducts = getSectionProducts(
+        apiProducts,
+        5,
+        4,
+        bestSellingProducts,
+    );
+    const exploreProductsList = getSectionProducts(
+        apiProducts,
+        0,
+        8,
+        exploreProducts,
+    );
+
+    async function handleAddToCart(product) {
+        if (!product.id) {
+            toast.info("This product is not available from the backend yet.");
+            return;
+        }
+
+        const payload = {
+            productId: product.id,
+            quantity: 1,
+        };
+
+        if (product.color) {
+            payload.selectedColor = product.color;
+        }
+
+        if (product.size) {
+            payload.selectedSize = product.size;
+        }
+
+        setAddingProductId(product.id);
+
+        try {
+            await addToCart(payload);
+            toast.success("Added to cart");
+        } catch (error) {
+            if (error.response?.status === 401) {
+                toast.error("Log in to add items to your cart");
+                navigate("/auth/login");
+                return;
+            }
+
+            toast.error(getApiErrorMessage(error));
+        } finally {
+            setAddingProductId("");
+        }
+    }
+
     return (
         <main className="home-page">
             <section className="home-page__hero">
@@ -320,7 +463,10 @@ function HomePage() {
                                 iPhone 14 Series
                             </p>
                             <h1>Up to 10% off Voucher</h1>
-                            <Link className="home-page__hero-cta" to="/auth/sign-up">
+                            <Link
+                                className="home-page__hero-cta"
+                                to="/auth/sign-up"
+                            >
                                 Shop Now
                                 <img alt="" src={arrowRightIcon} />
                             </Link>
@@ -330,7 +476,10 @@ function HomePage() {
                             <img alt="iPhone 14" src={iPhoneImage} />
                         </div>
 
-                        <div className="home-page__hero-dots" aria-label="Hero Slides">
+                        <div
+                            className="home-page__hero-dots"
+                            aria-label="Hero Slides"
+                        >
                             <span />
                             <span />
                             <span className="is-active" />
@@ -351,13 +500,21 @@ function HomePage() {
                     />
 
                     <div className="home-product-grid home-product-grid--flash">
-                        {flashSaleProducts.map((product) => (
-                            <ProductCard key={product.name} product={product} />
+                        {flashProducts.map((product) => (
+                            <ProductCard
+                                isAdding={addingProductId === product.id}
+                                key={product.id || product.name}
+                                onAddToCart={handleAddToCart}
+                                product={product}
+                            />
                         ))}
                     </div>
 
                     <div className="home-page__center-action">
-                        <Link className="home-page__primary-link" to="/auth/sign-up">
+                        <Link
+                            className="home-page__primary-link"
+                            to="/products"
+                        >
                             View All Products
                         </Link>
                     </div>
@@ -374,7 +531,10 @@ function HomePage() {
 
                     <div className="home-category-grid">
                         {browseCategories.map((category) => (
-                            <article className="home-category-card" key={category.label}>
+                            <article
+                                className="home-category-card"
+                                key={category.label}
+                            >
                                 <img alt="" src={category.image} />
                                 <h3>{category.label}</h3>
                             </article>
@@ -388,13 +548,18 @@ function HomePage() {
                     <SectionEyebrow>This Month</SectionEyebrow>
                     <SectionHeader
                         actionLabel="View All"
-                        actionTo="/auth/sign-up"
+                        actionTo="/products"
                         title="Best Selling Products"
                     />
 
                     <div className="home-product-grid home-product-grid--best">
-                        {bestSellingProducts.map((product) => (
-                            <ProductCard key={product.name} product={product} />
+                        {bestProducts.map((product) => (
+                            <ProductCard
+                                isAdding={addingProductId === product.id}
+                                key={product.id || product.name}
+                                onAddToCart={handleAddToCart}
+                                product={product}
+                            />
                         ))}
                     </div>
                 </div>
@@ -412,7 +577,10 @@ function HomePage() {
                                 items={featureTimerValues}
                                 valueFirst
                             />
-                            <Link className="home-feature-banner__button" to="/auth/sign-up">
+                            <Link
+                                className="home-feature-banner__button"
+                                to="/auth/sign-up"
+                            >
                                 Buy Now!
                             </Link>
                         </div>
@@ -434,13 +602,21 @@ function HomePage() {
                     />
 
                     <div className="home-product-grid home-product-grid--explore">
-                        {exploreProducts.map((product) => (
-                            <ProductCard key={product.name} product={product} />
+                        {exploreProductsList.map((product) => (
+                            <ProductCard
+                                isAdding={addingProductId === product.id}
+                                key={product.id || product.name}
+                                onAddToCart={handleAddToCart}
+                                product={product}
+                            />
                         ))}
                     </div>
 
                     <div className="home-page__center-action">
-                        <Link className="home-page__primary-link" to="/auth/sign-up">
+                        <Link
+                            className="home-page__primary-link"
+                            to="/products"
+                        >
                             View All Products
                         </Link>
                     </div>
@@ -482,7 +658,10 @@ function HomePage() {
                 <div className="app-shell__container">
                     <div className="home-service-grid">
                         {services.map((service) => (
-                            <article className="home-service-card" key={service.title}>
+                            <article
+                                className="home-service-card"
+                                key={service.title}
+                            >
                                 <div className="home-service-card__icon">
                                     <span>
                                         <img alt="" src={service.icon} />

@@ -8,6 +8,8 @@ import CheckoutPage from "./pages/CheckoutPage";
 import HomePage from "./pages/HomePage";
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
+import OrdersPage from "./pages/OrdersPage";
+import ProductsPage from "./pages/ProductsPage";
 
 function App() {
     return (
@@ -16,10 +18,12 @@ function App() {
             <div className="app-shell__content">
                 <Routes>
                     <Route path="/" element={<HomePage />} />
+                    <Route path="products" element={<ProductsPage />} />
                     <Route path="auth/sign-up" element={<SignUpPage />} />
                     <Route path="auth/login" element={<LoginPage />} />
                     <Route path="cart" element={<CartPage />} />
                     <Route path="checkout" element={<CheckoutPage />} />
+                    <Route path="orders" element={<OrdersPage />} />
                     <Route path="account" element={<AccountPage />} />
                     <Route path="profile" element={<AccountPage />} />
                 </Routes>

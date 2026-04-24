@@ -6,6 +6,8 @@ import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { login } from "../api/auth";
 
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 function LoginPage() {
     const navigate = useNavigate();
     const {
@@ -60,16 +62,20 @@ function LoginPage() {
                     >
                         <label className="signup-page__field">
                             <span className="signup-page__sr-only">
-                                Email or phone number
+                                Email address
                             </span>
                             <input
                                 aria-invalid={Boolean(errors.contact)}
-                                autoComplete="username"
-                                placeholder="Email or Phone Number"
-                                // value={email}
-                                // onChange={(e) => setEmail(e.target.value)}
+                                autoComplete="email"
+                                placeholder="Email Address"
                                 type="text"
-                                {...register("contact")}
+                                {...register("contact", {
+                                    required: "Email is required",
+                                    setValueAs: (value) => value.trim(),
+                                    validate: (value) =>
+                                        emailPattern.test(value) ||
+                                        "Enter a valid email address",
+                                })}
                             />
                         </label>
                         {errors.contact && (
@@ -86,7 +92,9 @@ function LoginPage() {
                                 autoComplete="current-password"
                                 placeholder="Password"
                                 type="password"
-                                {...register("password")}
+                                {...register("password", {
+                                    required: "Password is required",
+                                })}
                             />
                         </label>
                         {errors.password && (

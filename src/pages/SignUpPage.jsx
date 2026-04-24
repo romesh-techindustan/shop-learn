@@ -1,11 +1,11 @@
 import { toast } from "react-toastify";
 import frame760 from "../assets/Frame 760.png";
-import { setItemInLocalStorage } from "../axios/ index";
-import { isValidEmailOrPhone } from "../common/common";
 import "./SignUpPage.css";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { signup } from "../api/auth";
+
+const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 function SignUpPage() {
     const navigate = useNavigate();
@@ -21,11 +21,10 @@ function SignUpPage() {
             const { response, status } = await signup(data);
             if (status === 200 || status === 201) {
                 reset();
+                toast.success(`Account created for ${response.email}`);
                 navigate("/auth/login");
             }
-            setItemInLocalStorage(response);
         } catch (error) {
-            console.error(error.response?.data?.message, "werwerwewer");
             const errMsg =
                 error.response?.data?.message || "Something went wrong";
             toast.error(errMsg);
@@ -76,20 +75,19 @@ function SignUpPage() {
 
                         <label className="signup-page__field">
                             <span className="signup-page__sr-only">
-                                Email or phone number
+                                Email address
                             </span>
                             <input
                                 aria-invalid={Boolean(errors.contact)}
-                                autoComplete="username"
-                                placeholder="Email or Phone Number"
+                                autoComplete="email"
+                                placeholder="Email Address"
                                 type="text"
                                 {...register("contact", {
-                                    required:
-                                        "Email or phone number is required",
+                                    required: "Email is required",
                                     setValueAs: (value) => value.trim(),
                                     validate: (value) =>
-                                        isValidEmailOrPhone(value) ||
-                                        "Enter a valid email address or phone number",
+                                        emailPattern.test(value) ||
+                                        "Enter a valid email address",
                                 })}
                             />
                         </label>

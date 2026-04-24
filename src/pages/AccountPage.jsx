@@ -1,4 +1,9 @@
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
+import { toast } from "react-toastify";
+import { getProfile } from "../api/users";
+import { setItemInLocalStorage } from "../axios/ index";
 import "./CommercePages.css";
 
 function getStoredUser() {
@@ -10,8 +15,8 @@ function getStoredUser() {
     }
 }
 
-function getProfileDefaults() {
-    const storedUser = getStoredUser();
+function buildProfileDefaults(user) {
+    const storedUser = user || getStoredUser();
     const name = storedUser?.name || storedUser?.fullName || "Md Rimel";
     const [firstName = "Md", ...lastNameParts] = name.split(" ");
 
@@ -24,8 +29,44 @@ function getProfileDefaults() {
 }
 
 function AccountPage() {
-    const profile = getProfileDefaults();
+    const navigate = useNavigate();
+    const [profile, setProfile] = useState(() => buildProfileDefaults());
+    
     const displayName = `${profile.firstName} ${profile.lastName}`.trim();
+
+    useEffect(() => {
+        let isMounted = true;
+
+        async function loadProfile() {
+            try {
+                const { response } = await getProfile();
+
+                setItemInLocalStorage("userDetail", response);
+
+                if (isMounted) {
+                    setProfile(buildProfileDefaults(response));
+                }
+            } catch (error) {
+                if (error.response?.status === 401) {
+                    toast.error("Log in to view your account");
+                    navigate("/auth/login");
+                    return;
+                }
+
+                toast.error(
+                    error.response?.data?.message ||
+                        error.message ||
+                        "Unable to load profile",
+                );
+            }
+        }
+
+        loadProfile();
+
+        return () => {
+            isMounted = false;
+        };
+    }, [navigate]);
 
     return (
         <main className="commerce-page commerce-page--account account-page">
@@ -87,29 +128,33 @@ function AccountPage() {
                                 <label className="account-page__field">
                                     <span>First Name</span>
                                     <input
-                                        defaultValue={profile.firstName}
+                                        readOnly
                                         type="text"
+                                        value={profile.firstName}
                                     />
                                 </label>
                                 <label className="account-page__field">
                                     <span>Last Name</span>
                                     <input
-                                        defaultValue={profile.lastName}
+                                        readOnly
                                         type="text"
+                                        value={profile.lastName}
                                     />
                                 </label>
                                 <label className="account-page__field">
                                     <span>Email</span>
                                     <input
-                                        defaultValue={profile.email}
+                                        readOnly
                                         type="email"
+                                        value={profile.email}
                                     />
                                 </label>
                                 <label className="account-page__field">
                                     <span>Address</span>
                                     <input
-                                        defaultValue={profile.address}
+                                        readOnly
                                         type="text"
+                                        value={profile.address}
                                     />
                                 </label>
                             </div>

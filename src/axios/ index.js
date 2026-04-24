@@ -3,7 +3,7 @@ import axios from "axios";
 export const ACCESS_TOKEN_STORAGE_KEY = "access_token";
 
 const axiosInstance = axios.create({
-  baseURL : "http://localhost:3000",
+  baseURL : import.meta.env.VITE_API_BASE_URL || "http://localhost:3000",
   timeout: 5000,
   headers: {
     "Content-Type": "application/json",

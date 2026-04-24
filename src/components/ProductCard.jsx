@@ -3,6 +3,7 @@ import heartIcon from "../assets/icons/Wishlist.svg";
 import ratingIcon from "../assets/icons/Vector.svg";
 import viewIcon from "../assets/icons/view.svg";
 import "./ProductCard.css";
+import { baseUrl } from "../common/constant";
 
 const supportedThemes = new Set([
     "rose",
@@ -38,10 +39,12 @@ function Rating({ rating, reviews }) {
     );
 }
 
-export function ProductCard({ product }) {
+export function ProductCard({ product, isAdding = false, onAddToCart }) {
+    console.log("jdgakjsjkasdhsk", baseUrl);
     const themeName = supportedThemes.has(product.theme)
         ? product.theme
         : "rose";
+    const canAddToCart = Boolean(product.id || product.showCart);
 
     return (
         <article className="home-product-card">
@@ -67,7 +70,10 @@ export function ProductCard({ product }) {
                     >
                         <img alt="" src={heartIcon} />
                     </button>
-                    <button aria-label={`Preview ${product.name}`} type="button">
+                    <button
+                        aria-label={`Preview ${product.name}`}
+                        type="button"
+                    >
                         <img alt="" src={viewIcon} />
                     </button>
                 </div>
@@ -76,13 +82,18 @@ export function ProductCard({ product }) {
                     <img
                         alt={product.name}
                         className="home-product-card__image"
-                        src={product.image}
+                        src={baseUrl + product.image}
                     />
                 </div>
 
-                {product.showCart ? (
-                    <button className="home-product-card__cart" type="button">
-                        Add To Cart
+                {canAddToCart ? (
+                    <button
+                        className="home-product-card__cart"
+                        disabled={isAdding}
+                        onClick={() => onAddToCart?.(product)}
+                        type="button"
+                    >
+                        {isAdding ? "Adding..." : "Add To Cart"}
                     </button>
                 ) : null}
             </div>
