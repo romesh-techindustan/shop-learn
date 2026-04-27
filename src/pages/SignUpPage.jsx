@@ -1,6 +1,6 @@
 import { toast } from "react-toastify";
 import frame760 from "../assets/Frame 760.png";
-import "./SignUpPage.css";
+import "../css/SignUpPage.css";
 import { useForm } from "react-hook-form";
 import { Link, useNavigate } from "react-router-dom";
 import { signup } from "../api/auth";
@@ -98,9 +98,7 @@ function SignUpPage() {
                         )}
 
                         <label className="signupPageInputField">
-                            <span className="signupPageSrOnly">
-                                Password
-                            </span>
+                            <span className="signupPageSrOnly">Password</span>
                             <input
                                 autoComplete="new-password"
                                 placeholder="Password"
@@ -126,10 +124,7 @@ function SignUpPage() {
 
                     <p className="signupPageLoginCopy">
                         Already have account?
-                        <Link
-                            className="signupPageTextLink"
-                            to="/auth/login"
-                        >
+                        <Link className="signupPageTextLink" to="/auth/login">
                             Log in
                         </Link>
                     </p>

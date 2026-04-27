@@ -3,7 +3,7 @@ import { Link, useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "react-toastify";
 import { resetPassword } from "../api/auth";
 import frame760 from "../assets/Frame 760.png";
-import "./SignUpPage.css";
+import "../css/SignUpPage.css";
 
 function ResetPasswordPage() {
     const navigate = useNavigate();

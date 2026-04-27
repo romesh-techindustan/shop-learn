@@ -1,11 +1,14 @@
 import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { getWishlist, removeFromWishlist, removeAllFromWishlist } from "../api/wishlist";
+import {
+    getWishlist,
+    removeFromWishlist,
+    removeAllFromWishlist,
+} from "../api/wishlist";
 import { addToCart } from "../api/cart";
 import { ProductCard } from "../components/ProductCard";
-import "./CommercePages.css";
-
+import "../css/CommercePages.css";
 export default function WishlistPage() {
     const [wishlistItems, setWishlistItems] = useState([]);
     const [loading, setLoading] = useState(true);
@@ -43,7 +46,7 @@ export default function WishlistPage() {
     async function handleRemove(id) {
         try {
             await removeFromWishlist(id);
-            setWishlistItems(wishlistItems.filter(item => item.id !== id));
+            setWishlistItems(wishlistItems.filter((item) => item.id !== id));
             toast.success("Removed from wishlist");
         } catch {
             toast.error("Failed to remove item");
@@ -67,7 +70,9 @@ export default function WishlistPage() {
             setWishlistItems((prev) => prev.filter((i) => i.id !== item.id));
             toast.success("Added to cart");
         } catch (error) {
-            toast.error(error.response?.data?.message || "Failed to add to cart");
+            toast.error(
+                error.response?.data?.message || "Failed to add to cart",
+            );
         }
     }
 
@@ -75,7 +80,11 @@ export default function WishlistPage() {
         if (wishlistItems.length === 0) return;
 
         try {
-            await Promise.all(wishlistItems.map(item => addToCart({ productId: item.product.id, quantity: 1 })));
+            await Promise.all(
+                wishlistItems.map((item) =>
+                    addToCart({ productId: item.product.id, quantity: 1 }),
+                ),
+            );
             await removeAllFromWishlist();
             setWishlistItems([]);
             toast.success("All items moved to cart");
@@ -92,18 +101,29 @@ export default function WishlistPage() {
                 <nav className="breadcrumbNav" aria-label="Breadcrumb">
                     <Link to="/">Home</Link>
                     <span className="breadcrumbSeparator">/</span>
-                    <span className="breadcrumbCurrentPage">Wishlist ({wishlistItems.length})</span>
+                    <span className="breadcrumbCurrentPage">
+                        Wishlist ({wishlistItems.length})
+                    </span>
                 </nav>
 
-                <div className="orderPageHeader" style={{ marginBottom: "60px" }}>
+                <div
+                    className="orderPageHeader"
+                    style={{ marginBottom: "60px" }}
+                >
                     <h1>Wishlist</h1>
                     <div style={{ display: "flex", gap: "16px" }}>
                         {wishlistItems.length > 0 && (
                             <>
-                                <button className="commerce-button" onClick={handleMoveAllToCart}>
+                                <button
+                                    className="commerce-button"
+                                    onClick={handleMoveAllToCart}
+                                >
                                     Add All To Cart
                                 </button>
-                                <button className="commerce-button" onClick={handleClearWishlist}>
+                                <button
+                                    className="commerce-button"
+                                    onClick={handleClearWishlist}
+                                >
                                     Clear Wishlist
                                 </button>
                             </>
@@ -112,16 +132,28 @@ export default function WishlistPage() {
                 </div>
 
                 {loading ? (
-                    <div style={{ textAlign: "center", padding: "40px" }}>Loading wishlist...</div>
+                    <div style={{ textAlign: "center", padding: "40px" }}>
+                        Loading wishlist...
+                    </div>
                 ) : wishlistItems.length === 0 ? (
                     <div style={{ textAlign: "center", padding: "60px" }}>
                         <p>Your wishlist is empty.</p>
-                        <Link to="/" className="commerce-button commerce-button--primary">
+                        <Link
+                            to="/"
+                            className="commerce-button commerce-button--primary"
+                        >
                             Continue Shopping
                         </Link>
                     </div>
                 ) : (
-                    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(270px, 1fr))", gap: "30px" }}>
+                    <div
+                        style={{
+                            display: "grid",
+                            gridTemplateColumns:
+                                "repeat(auto-fill, minmax(270px, 1fr))",
+                            gap: "30px",
+                        }}
+                    >
                         {wishlistItems.map((item) => (
                             <ProductCard
                                 key={item.id}

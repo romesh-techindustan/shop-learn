@@ -10,12 +10,11 @@ import monitorImage from "../assets/monitor.png";
 import { loadStripe } from "@stripe/stripe-js";
 import {
     EmbeddedCheckoutProvider,
-    EmbeddedCheckout
+    EmbeddedCheckout,
 } from "@stripe/react-stripe-js";
 import { formatPrice } from "../common/common";
 import { buildAssetUrl } from "../common/constant";
-import "./CommercePages.css";
-
+import "../css/CommercePages.css";
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
 const shippingFields = [
@@ -31,15 +30,30 @@ const shippingFields = [
         label: "Apartment, floor, etc. (optional)",
         autoComplete: "address-line2",
     },
-    { id: "city", label: "Town/City", required: true, autoComplete: "address-level2" },
-    { id: "state", label: "State", required: true, autoComplete: "address-level1" },
+    {
+        id: "city",
+        label: "Town/City",
+        required: true,
+        autoComplete: "address-level2",
+    },
+    {
+        id: "state",
+        label: "State",
+        required: true,
+        autoComplete: "address-level1",
+    },
     {
         id: "postalCode",
         label: "Postal Code",
         required: true,
         autoComplete: "postal-code",
     },
-    { id: "country", label: "Country Code", required: true, defaultValue: "US" },
+    {
+        id: "country",
+        label: "Country Code",
+        required: true,
+        defaultValue: "US",
+    },
     { id: "phone", label: "Phone Number", required: true, type: "tel" },
     { id: "email", label: "Email Address", required: true, type: "email" },
 ];
@@ -55,20 +69,25 @@ function getCheckoutItemName(item) {
 }
 
 function getCheckoutItemImage(item, index) {
-    return buildAssetUrl(item.product?.image || item.productImage) || fallbackImages[index % fallbackImages.length];
+    return (
+        buildAssetUrl(item.product?.image || item.productImage) ||
+        fallbackImages[index % fallbackImages.length]
+    );
 }
 
 function buildCheckoutPayload(data, paymentMethod, addressId) {
-    const shippingAddress = addressId ? undefined : {
-        name: data.name,
-        phone: data.phone || undefined,
-        line1: data.line1,
-        line2: data.line2 || undefined,
-        city: data.city,
-        state: data.state,
-        postalCode: data.postalCode,
-        country: data.country.toUpperCase(),
-    };
+    const shippingAddress = addressId
+        ? undefined
+        : {
+              name: data.name,
+              phone: data.phone || undefined,
+              line1: data.line1,
+              line2: data.line2 || undefined,
+              city: data.city,
+              state: data.state,
+              postalCode: data.postalCode,
+              country: data.country.toUpperCase(),
+          };
 
     return {
         currency: "usd",
@@ -99,10 +118,8 @@ function CheckoutPage() {
 
         async function loadData() {
             try {
-                const [{ response: cartRes }, { response: addrRes }] = await Promise.all([
-                    getCart(),
-                    getAddresses(),
-                ]);
+                const [{ response: cartRes }, { response: addrRes }] =
+                    await Promise.all([getCart(), getAddresses()]);
 
                 if (isMounted) {
                     setCart(cartRes);
@@ -159,10 +176,17 @@ function CheckoutPage() {
                 finalAddressId = newAddr.id;
             }
 
-            const payload = buildCheckoutPayload(data, paymentMethod, finalAddressId);
+            const payload = buildCheckoutPayload(
+                data,
+                paymentMethod,
+                finalAddressId,
+            );
             const { response } = await createCheckout(payload);
 
-            if (response.paymentProvider === "stripe" && response.clientSecret) {
+            if (
+                response.paymentProvider === "stripe" &&
+                response.clientSecret
+            ) {
                 toast.success("Stripe checkout created");
                 setClientSecret(response.clientSecret);
                 return;
@@ -192,13 +216,14 @@ function CheckoutPage() {
                     <span className="breadcrumbSeparator">/</span>
                     <span>View Cart</span>
                     <span className="breadcrumbSeparator">/</span>
-                    <span className="breadcrumbCurrentPage">
-                        CheckOut
-                    </span>
+                    <span className="breadcrumbCurrentPage">CheckOut</span>
                 </nav>
 
                 {clientSecret ? (
-                    <div id="checkout" style={{ marginTop: "40px", minHeight: "600px" }}>
+                    <div
+                        id="checkout"
+                        style={{ marginTop: "40px", minHeight: "600px" }}
+                    >
                         <EmbeddedCheckoutProvider
                             stripe={stripePromise}
                             options={{ clientSecret }}
@@ -218,21 +243,35 @@ function CheckoutPage() {
                                         <select
                                             className="commerce-input"
                                             value={selectedAddressId}
-                                            onChange={(e) => setSelectedAddressId(e.target.value)}
-                                            style={{ width: "100%", appearance: "auto" }}
+                                            onChange={(e) =>
+                                                setSelectedAddressId(
+                                                    e.target.value,
+                                                )
+                                            }
+                                            style={{
+                                                width: "100%",
+                                                appearance: "auto",
+                                            }}
                                         >
                                             {addresses.map((addr) => (
-                                                <option key={addr.id} value={addr.id}>
-                                                    {addr.name} - {addr.line1}, {addr.city}
+                                                <option
+                                                    key={addr.id}
+                                                    value={addr.id}
+                                                >
+                                                    {addr.name} - {addr.line1},{" "}
+                                                    {addr.city}
                                                 </option>
                                             ))}
-                                            <option value="new">+ Add New Address</option>
+                                            <option value="new">
+                                                + Add New Address
+                                            </option>
                                         </select>
                                     </label>
                                 </div>
                             )}
 
-                            {(selectedAddressId === "new" || addresses.length === 0) && (
+                            {(selectedAddressId === "new" ||
+                                addresses.length === 0) && (
                                 <form className="checkoutShippingForm">
                                     {shippingFields.map((field) => (
                                         <label
@@ -241,17 +280,30 @@ function CheckoutPage() {
                                         >
                                             <span>
                                                 {field.label}
-                                                {field.required && <strong>*</strong>}
+                                                {field.required && (
+                                                    <strong>*</strong>
+                                                )}
                                             </span>
                                             <input
-                                                autoComplete={field.autoComplete || field.id}
-                                                defaultValue={field.defaultValue}
+                                                autoComplete={
+                                                    field.autoComplete ||
+                                                    field.id
+                                                }
+                                                defaultValue={
+                                                    field.defaultValue
+                                                }
                                                 required={field.required}
                                                 type={field.type || "text"}
                                                 {...register(field.id, {
-                                                    required: selectedAddressId === "new" || addresses.length === 0 ? field.required : false,
+                                                    required:
+                                                        selectedAddressId ===
+                                                            "new" ||
+                                                        addresses.length === 0
+                                                            ? field.required
+                                                            : false,
                                                     setValueAs: (value) =>
-                                                        typeof value === "string"
+                                                        typeof value ===
+                                                        "string"
                                                             ? value.trim()
                                                             : value,
                                                 })}
@@ -268,8 +320,8 @@ function CheckoutPage() {
                                             ✓
                                         </span>
                                         <span>
-                                            Save this information for faster check-out
-                                            next time
+                                            Save this information for faster
+                                            check-out next time
                                         </span>
                                     </label>
                                 </form>
@@ -278,7 +330,9 @@ function CheckoutPage() {
 
                         <aside className="checkoutOrderSummary">
                             <div className="checkoutOrderSummaryList">
-                                {isLoading ? <span>Loading checkout...</span> : null}
+                                {isLoading ? (
+                                    <span>Loading checkout...</span>
+                                ) : null}
                                 {!isLoading && checkoutItems.length === 0 ? (
                                     <span>Your cart is empty.</span>
                                 ) : null}
@@ -295,9 +349,13 @@ function CheckoutPage() {
                                                     index,
                                                 )}
                                             />
-                                            <span>{getCheckoutItemName(item)}</span>
+                                            <span>
+                                                {getCheckoutItemName(item)}
+                                            </span>
                                         </div>
-                                        <span>{formatPrice(item.lineTotal)}</span>
+                                        <span>
+                                            {formatPrice(item.lineTotal)}
+                                        </span>
                                     </div>
                                 ))}
                             </div>

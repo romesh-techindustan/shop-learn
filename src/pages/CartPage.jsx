@@ -11,7 +11,7 @@ import {
 import gamepadImage from "../assets/GP11.png";
 import monitorImage from "../assets/monitor.png";
 import { formatPrice } from "../common/common";
-import "./CommercePages.css";
+import "../css/CommercePages.css";
 import { baseUrl } from "../common/constant";
 
 const fallbackImages = [monitorImage, gamepadImage];

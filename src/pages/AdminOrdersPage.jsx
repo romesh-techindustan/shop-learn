@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import {
     getAdminOrders,
@@ -8,11 +8,11 @@ import {
 } from "../api/orders";
 import { formatPrice } from "../common/common";
 import { AdminSidebar } from "./AdminDashboardPage";
-import "./AdminPages.css";
+import "../css/AdminPages.css";
 
 /* ── Constants ──────────────────────────────────────────── */
-const ORDER_STATUSES   = ["pending", "processing", "shipped", "completed", "cancelled"];
-const PAYMENT_STATUSES = ["unpaid", "paid", "refunded"];
+const ORDER_STATUSES   = ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"];
+const PAYMENT_STATUSES = ["pending", "paid", "failed", "refunded", "cancelled"];
 const PAGE_SIZE = 10;
 
 function getStoredUser() {
@@ -20,12 +20,6 @@ function getStoredUser() {
         const d = localStorage.getItem("userDetail");
         return d ? JSON.parse(d) : null;
     } catch { return null; }
-}
-
-/* ── Status Badge ───────────────────────────────────────── */
-function StatusBadge({ status }) {
-    const key = status?.toLowerCase().replace(/\s+/g, "-") || "pending";
-    return <span className={`adminBadge adminBadge--${key}`}>{status}</span>;
 }
 
 /* ── Loading Spinner ────────────────────────────────────── */
@@ -204,6 +198,7 @@ export default function AdminOrdersPage() {
                                             <th>Amount</th>
                                             <th>Order Status</th>
                                             <th>Payment</th>
+                                            <th>Action</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -258,7 +253,7 @@ export default function AdminOrdersPage() {
                                                         <select
                                                             id={`order-payment-${order.id}`}
                                                             className="adminStatusSelect"
-                                                            value={order.paymentStatus?.toLowerCase() || "unpaid"}
+                                                            value={order.paymentStatus?.toLowerCase() || "pending"}
                                                             onChange={(e) => handlePaymentChange(order.id, e.target.value)}
                                                         >
                                                             {PAYMENT_STATUSES.map((s) => (
@@ -268,6 +263,14 @@ export default function AdminOrdersPage() {
                                                             ))}
                                                         </select>
                                                     )}
+                                                </td>
+                                                <td>
+                                                    <Link
+                                                        to={`/admin/orders/${order.id}`}
+                                                        className="adminBtn adminBtn--ghost adminBtn--sm"
+                                                    >
+                                                        View/Edit
+                                                    </Link>
                                                 </td>
                                             </tr>
                                         ))}

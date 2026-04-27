@@ -26,24 +26,67 @@ export async function checkout(payload) {
 }
 
 export async function getAdminOrders(params) {
-  const response = await axiosInstance.get("/orders/admin", { params });
+  let response;
+
+  try {
+    response = await axiosInstance.get("/orders/admin", { params });
+  } catch (error) {
+    if (![404, 405].includes(error.response?.status)) {
+      throw error;
+    }
+
+    response = await axiosInstance.get("/admin/orders", { params });
+  }
 
   return unwrapResponse(response);
 }
 
+export async function getAdminOrderById(orderId) {
+  const { response, ...rest } = await getAdminOrders();
+  const orders = Array.isArray(response) ? response : response?.orders || [];
+  const order = orders.find((item) => item.id === orderId);
+
+  return { response: order || null, ...rest };
+}
+
 export async function updateOrderStatus(orderId, status) {
-  const response = await axiosInstance.patch(`/orders/admin/${orderId}/status`, {
-    status,
-  });
+  let response;
+
+  try {
+    response = await axiosInstance.patch(`/orders/admin/${orderId}/status`, {
+      status,
+    });
+  } catch (error) {
+    if (![404, 405].includes(error.response?.status)) {
+      throw error;
+    }
+
+    response = await axiosInstance.patch(`/admin/orders/${orderId}/status`, {
+      status,
+    });
+  }
 
   return unwrapResponse(response);
 }
 
 export async function updatePaymentStatus(orderId, paymentStatus) {
-  const response = await axiosInstance.patch(
-    `/orders/admin/${orderId}/payment-status`,
-    { paymentStatus },
-  );
+  let response;
+
+  try {
+    response = await axiosInstance.patch(
+      `/orders/admin/${orderId}/payment-status`,
+      { paymentStatus },
+    );
+  } catch (error) {
+    if (![404, 405].includes(error.response?.status)) {
+      throw error;
+    }
+
+    response = await axiosInstance.patch(
+      `/admin/orders/${orderId}/payment-status`,
+      { paymentStatus },
+    );
+  }
 
   return unwrapResponse(response);
 }
@@ -73,4 +116,3 @@ export async function updateStripePaymentStatus(sessionId) {
 
   return unwrapResponse(response);
 }
-

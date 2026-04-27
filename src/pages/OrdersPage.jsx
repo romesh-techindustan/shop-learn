@@ -3,8 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { getOrders } from "../api/orders";
 import { formatPrice } from "../common/common";
-import "./CommercePages.css";
-
+import "../css/CommercePages.css";
 function OrderStatusBadge({ status }) {
     const statusColors = {
         pending: "#f39c12",
@@ -22,7 +21,8 @@ function OrderStatusBadge({ status }) {
                 fontSize: "0.85rem",
                 fontWeight: "600",
                 color: "#ffffff",
-                backgroundColor: statusColors[status.toLowerCase()] || "#95a5a6",
+                backgroundColor:
+                    statusColors[status.toLowerCase()] || "#95a5a6",
                 textTransform: "capitalize",
             }}
         >
@@ -80,11 +80,16 @@ export default function OrdersPage() {
                 </div>
 
                 {loading ? (
-                    <div style={{ textAlign: "center", padding: "40px" }}>Loading orders...</div>
+                    <div style={{ textAlign: "center", padding: "40px" }}>
+                        Loading orders...
+                    </div>
                 ) : orders.length === 0 ? (
                     <div style={{ textAlign: "center", padding: "60px" }}>
                         <p>You haven't placed any orders yet.</p>
-                        <Link to="/" className="commerce-button commerce-button--primary">
+                        <Link
+                            to="/"
+                            className="commerce-button commerce-button--primary"
+                        >
                             Go Shopping
                         </Link>
                     </div>
@@ -94,12 +99,26 @@ export default function OrdersPage() {
                             <div key={order.id} className="historyOrderCard">
                                 <div className="orderCardHeaderTop">
                                     <div>
-                                        <h2>Order #{order.id.slice(0, 8)}...</h2>
-                                        <p>Placed on: {new Date(order.createdAt).toLocaleDateString()}</p>
+                                        <h2>
+                                            Order #{order.id.slice(0, 8)}...
+                                        </h2>
+                                        <p>
+                                            Placed on:{" "}
+                                            {new Date(
+                                                order.createdAt,
+                                            ).toLocaleDateString()}
+                                        </p>
                                     </div>
                                     <div style={{ textAlign: "right" }}>
-                                        <OrderStatusBadge status={order.status} />
-                                        <p style={{ marginTop: "8px", fontWeight: "700" }}>
+                                        <OrderStatusBadge
+                                            status={order.status}
+                                        />
+                                        <p
+                                            style={{
+                                                marginTop: "8px",
+                                                fontWeight: "700",
+                                            }}
+                                        >
                                             {formatPrice(order.totalAmount)}
                                         </p>
                                     </div>
@@ -108,8 +127,11 @@ export default function OrdersPage() {
                                 <div className="orderCardItemsList">
                                     {order.items?.map((item, idx) => (
                                         <span key={idx}>
-                                            {item.productName || "Product"} (x{item.quantity})
-                                            {idx < order.items.length - 1 ? ", " : ""}
+                                            {item.productName || "Product"} (x
+                                            {item.quantity})
+                                            {idx < order.items.length - 1
+                                                ? ", "
+                                                : ""}
                                         </span>
                                     ))}
                                 </div>
@@ -118,7 +140,10 @@ export default function OrdersPage() {
                                     <Link
                                         to={`/order/${order.id}`}
                                         className="commerce-button"
-                                        style={{ minHeight: "40px", padding: "0 20px" }}
+                                        style={{
+                                            minHeight: "40px",
+                                            padding: "0 20px",
+                                        }}
                                     >
                                         View Details
                                     </Link>

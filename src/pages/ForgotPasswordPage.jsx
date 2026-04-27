@@ -3,7 +3,7 @@ import { Link } from "react-router-dom";
 import { toast } from "react-toastify";
 import { forgotPassword } from "../api/auth";
 import frame760 from "../assets/Frame 760.png";
-import "./SignUpPage.css";
+import "../css/SignUpPage.css";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 

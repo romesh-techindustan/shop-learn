@@ -422,6 +422,13 @@
   white-space: nowrap;
 }
 
+.adminBtn:disabled {
+  cursor: not-allowed;
+  opacity: 0.58;
+  transform: none;
+  box-shadow: none;
+}
+
 .adminBtn--primary {
   background: #db4444;
   color: #ffffff;
@@ -808,6 +815,110 @@
   line-height: 1.6;
 }
 
+/* ── Admin Order Detail ─────────────────────────────────── */
+.adminDetailLayout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(320px, 0.75fr);
+  gap: 24px;
+  align-items: start;
+}
+
+.adminDetailSide,
+.adminDetailStack,
+.adminDetailForm {
+  display: grid;
+  gap: 16px;
+}
+
+.adminDetailForm {
+  padding: 0 24px 24px;
+}
+
+.adminOrderItems {
+  display: grid;
+  gap: 0;
+}
+
+.adminOrderItem {
+  display: grid;
+  grid-template-columns: 64px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.adminOrderItemImage {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  object-fit: contain;
+  background: #f8fafc;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.adminOrderItemInfo,
+.adminOrderItemPrice {
+  display: grid;
+  gap: 5px;
+}
+
+.adminOrderItemInfo strong,
+.adminOrderItemPrice strong {
+  color: #0f172a;
+  font-size: 0.92rem;
+}
+
+.adminOrderItemInfo span,
+.adminOrderItemPrice span {
+  color: #64748b;
+  font-size: 0.8rem;
+}
+
+.adminOrderItemPrice {
+  justify-items: end;
+}
+
+.adminTotalsBox {
+  display: grid;
+  gap: 12px;
+  padding: 20px 24px 24px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  background: #fbfdff;
+}
+
+.adminDetailRow {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  color: #64748b;
+  font-size: 0.86rem;
+}
+
+.adminDetailRow strong {
+  color: #0f172a;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+  text-align: right;
+}
+
+.adminDetailStack {
+  padding: 0 24px 24px;
+}
+
+.adminAddressBox {
+  display: grid;
+  gap: 6px;
+  padding: 0 24px 24px;
+  color: #64748b;
+  font-size: 0.88rem;
+  line-height: 1.55;
+}
+
+.adminAddressBox strong {
+  color: #0f172a;
+}
+
 /* ── Responsive ─────────────────────────────────────────── */
 @media (max-width: 1024px) {
   .adminSidebar {
@@ -872,5 +983,25 @@
 
   .adminFormRow {
     grid-template-columns: 1fr;
+  }
+
+  .adminDetailLayout {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 620px) {
+  .adminOrderItem {
+    grid-template-columns: 52px minmax(0, 1fr);
+  }
+
+  .adminOrderItemImage {
+    width: 52px;
+    height: 52px;
+  }
+
+  .adminOrderItemPrice {
+    grid-column: 2;
+    justify-items: start;
   }
 }

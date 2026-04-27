@@ -17,10 +17,9 @@ import monitorImage from "../assets/monitor.png";
 import wooferImage from "../assets/woofer.png";
 import { ProductCard } from "../components/ProductCard";
 import SectionEyebrow from "../components/home/SectionEyebrow";
-import "./CommercePages.css";
-import "./HomePage.css";
-import "./ProductsPage.css";
-
+import "../css/CommercePages.css";
+import "../css/HomePage.css";
+import "../css/ProductsPage.css";
 const productThemes = [
     "rose",
     "neon",
@@ -241,9 +240,7 @@ function ProductsPage() {
                     <nav className="breadcrumbNav" aria-label="Breadcrumb">
                         <Link to="/">Home</Link>
                         <span className="breadcrumbSeparator">/</span>
-                        <span className="breadcrumbCurrentPage">
-                            Products
-                        </span>
+                        <span className="breadcrumbCurrentPage">Products</span>
                     </nav>
 
                     <SectionEyebrow>Products</SectionEyebrow>

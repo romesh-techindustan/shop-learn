@@ -1,6 +1,5 @@
 import { Link } from "react-router-dom";
-import "./CommercePages.css";
-
+import "../css/CommercePages.css";
 export default function NotFoundPage() {
     return (
         <main className="ecommercePageWrapper">
@@ -13,8 +12,13 @@ export default function NotFoundPage() {
 
                 <div className="notFoundContainer">
                     <h1 className="notFoundTitle">404 Not Found</h1>
-                    <p className="notFoundText">Your visited page not found. You may go home page.</p>
-                    <Link to="/" className="commerce-button commerce-button--primary notFoundButton">
+                    <p className="notFoundText">
+                        Your visited page not found. You may go home page.
+                    </p>
+                    <Link
+                        to="/"
+                        className="commerce-button commerce-button--primary notFoundButton"
+                    >
                         Back to home page
                     </Link>
                 </div>

@@ -36,19 +36,7 @@ import CountdownTimer from "../components/home/CountdownTimer";
 import SectionEyebrow from "../components/home/SectionEyebrow";
 import SectionHeader from "../components/home/SectionHeader";
 import { categoryData } from "../common/constant";
-import "./HomePage.css";
-
-const heroCategories = [
-    { label: "Woman's Fashion", nested: true },
-    { label: "Men's Fashion", nested: true },
-    { label: "Electronics" },
-    { label: "Home & Lifestyle" },
-    { label: "Medicine" },
-    { label: "Sports & Outdoor" },
-    { label: "Baby's & Toys" },
-    { label: "Groceries & Pets" },
-    { label: "Health & Beauty" },
-];
+import "../css/HomePage.css";
 
 function formatCategoryLabel(category) {
     return category
@@ -345,32 +333,32 @@ const heroSlides = [
         title: "Up to 10% off Voucher",
         image: iPhoneImage,
         logo: appleLogo,
-        link: "/products"
+        link: "/products",
     },
     {
         eyebrow: "PlayStation 5",
         title: "The Ultimate Gaming Experience",
         image: ps5Image,
-        link: "/products"
+        link: "/products",
     },
     {
         eyebrow: "Smart Laptops",
         title: "Unleash Your Productivity",
         image: laptopImage,
-        link: "/products"
+        link: "/products",
     },
     {
         eyebrow: "Audio Experience",
         title: "Immersive Sound Everywhere",
         image: jblImage,
-        link: "/products"
+        link: "/products",
     },
     {
         eyebrow: "Fashion Trends",
         title: "Step Into Style Today",
         image: womenImage,
-        link: "/products"
-    }
+        link: "/products",
+    },
 ];
 
 function HomePage() {
@@ -447,9 +435,9 @@ function HomePage() {
     );
     const browseCategories = apiCategories.length
         ? apiCategories.slice(0, 6).map((category, index) => ({
-            label: formatCategoryLabel(category),
-            image: categoryData[index % categoryData.length].image,
-        }))
+              label: formatCategoryLabel(category),
+              image: categoryData[index % categoryData.length].image,
+          }))
         : categoryData;
 
     async function handleAddToCart(product) {
@@ -503,7 +491,9 @@ function HomePage() {
                                 key={category}
                                 type="button"
                             >
-                                <span style={{ textTransform: 'capitalize' }}>{category}</span>
+                                <span style={{ textTransform: "capitalize" }}>
+                                    {category}
+                                </span>
                                 {category.nested ? (
                                     <img
                                         alt=""
@@ -518,7 +508,12 @@ function HomePage() {
                     <div className="homeHeroBanner">
                         <div className="homeHeroCopy">
                             <p className="homeHeroEyebrow">
-                                {heroSlides[currentSlide].logo && <img alt="" src={heroSlides[currentSlide].logo} />}
+                                {heroSlides[currentSlide].logo && (
+                                    <img
+                                        alt=""
+                                        src={heroSlides[currentSlide].logo}
+                                    />
+                                )}
                                 {heroSlides[currentSlide].eyebrow}
                             </p>
                             <h1>{heroSlides[currentSlide].title}</h1>
@@ -537,7 +532,8 @@ function HomePage() {
                                 alt={heroSlides[currentSlide].eyebrow}
                                 src={heroSlides[currentSlide].image}
                                 style={{
-                                    animation: "heroFadeIn 0.8s ease-out forwards"
+                                    animation:
+                                        "heroFadeIn 0.8s ease-out forwards",
                                 }}
                             />
                         </div>
@@ -549,7 +545,11 @@ function HomePage() {
                             {heroSlides.map((_, index) => (
                                 <span
                                     key={index}
-                                    className={currentSlide === index ? "is-active" : ""}
+                                    className={
+                                        currentSlide === index
+                                            ? "is-active"
+                                            : ""
+                                    }
                                     onClick={() => setCurrentSlide(index)}
                                     style={{ cursor: "pointer" }}
                                 />
@@ -580,10 +580,7 @@ function HomePage() {
                     </div>
 
                     <div className="homePageCenterAction">
-                        <Link
-                            className="homePrimaryLink"
-                            to="/products"
-                        >
+                        <Link className="homePrimaryLink" to="/products">
                             View All Products
                         </Link>
                     </div>
@@ -682,10 +679,7 @@ function HomePage() {
                     </div>
 
                     <div className="homePageCenterAction">
-                        <Link
-                            className="homePrimaryLink"
-                            to="/products"
-                        >
+                        <Link className="homePrimaryLink" to="/products">
                             View All Products
                         </Link>
                     </div>

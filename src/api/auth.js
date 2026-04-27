@@ -15,6 +15,12 @@ export async function login(data) {
   return unwrapResponse(response);
 }
 
+export async function verifyAdminOtp(data) {
+  const response = await axiosInstance.post("/auth/verify-admin-otp", data);
+
+  return unwrapResponse(response);
+}
+
 export async function changePassword(data) {
   const response = await axiosInstance.post("/auth/change-password", data);
 

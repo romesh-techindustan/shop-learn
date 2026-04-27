@@ -3,7 +3,9 @@ import "./App.css";
 import Footer from "./components/Footer";
 import Navbar from "./components/Navbar";
 import AccountPage from "./pages/AccountPage";
+import AddressPage from "./pages/AddressPage";
 import AdminDashboardPage from "./pages/AdminDashboardPage";
+import AdminOrderDetailPage from "./pages/AdminOrderDetailPage";
 import AdminOrdersPage from "./pages/AdminOrdersPage";
 import AdminProductsPage from "./pages/AdminProductsPage";
 import CartPage from "./pages/CartPage";
@@ -11,6 +13,7 @@ import CheckoutPage from "./pages/CheckoutPage";
 import HomePage from "./pages/HomePage";
 import SignUpPage from "./pages/SignUpPage";
 import LoginPage from "./pages/LoginPage";
+import AdminTwoFactorPage from "./pages/AdminTwoFactorPage";
 import OrdersPage from "./pages/OrdersPage";
 import ProductsPage from "./pages/ProductsPage";
 import ForgotPasswordPage from "./pages/ForgotPasswordPage";
@@ -37,6 +40,7 @@ function App() {
                     <Route path="product/:id" element={<ProductDetailPage />} />
                     <Route path="auth/sign-up" element={<SignUpPage />} />
                     <Route path="auth/login" element={<LoginPage />} />
+                    <Route path="auth/admin-2fa" element={<AdminTwoFactorPage />} />
                     <Route path="auth/forgot-password" element={<ForgotPasswordPage />} />
                     <Route path="auth/reset-password" element={<ResetPasswordPage />} />
                     <Route path="cart" element={<CartPage />} />
@@ -47,10 +51,12 @@ function App() {
                     <Route path="stripe-success" element={<StripePaymentSuccessPage />} />
                     <Route path="account" element={<AccountPage />} />
                     <Route path="profile" element={<AccountPage />} />
+                    <Route path="address" element={<AddressPage />} />
                     <Route path="about" element={<AboutPage />} />
                     <Route path="contact" element={<ContactPage />} />
                     <Route path="admin" element={<AdminDashboardPage />} />
                     <Route path="admin/orders" element={<AdminOrdersPage />} />
+                    <Route path="admin/orders/:id" element={<AdminOrderDetailPage />} />
                     <Route path="admin/products" element={<AdminProductsPage />} />
                     <Route path="*" element={<NotFoundPage />} />
                 </Routes>

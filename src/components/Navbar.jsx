@@ -243,29 +243,28 @@ function Navbar() {
                             />
                             <SearchIcon />
                         </label>
+                        <Link
+                            aria-label="Wishlist"
+                            className="toolIconButton"
+                            to="/wishlist"
+                        >
+                            <img alt="" src={wishlistIcon} />
+                        </Link>
+
+                        <Link
+                            aria-label="Cart"
+                            className="toolIconButton navbar__tool--cart"
+                            to="/cart"
+                        >
+                            <img alt="" src={cartIcon} />
+                            {cartCount > 0 ? (
+                                <span className="cartItemCountBadge">
+                                    {cartCount}
+                                </span>
+                            ) : null}
+                        </Link>
 
                         <div className="userToolsGroup">
-                            <Link
-                                aria-label="Wishlist"
-                                className="toolIconButton"
-                                to="/wishlist"
-                            >
-                                <img alt="" src={wishlistIcon} />
-                            </Link>
-
-                            <Link
-                                aria-label="Cart"
-                                className="toolIconButton navbar__tool--cart"
-                                to="/cart"
-                            >
-                                <img alt="" src={cartIcon} />
-                                {cartCount > 0 ? (
-                                    <span className="cartItemCountBadge">
-                                        {cartCount}
-                                    </span>
-                                ) : null}
-                            </Link>
-
                             {isLoggedIn ? (
                                 <Link
                                     aria-label={`Account for ${userName}`}

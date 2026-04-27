@@ -1,10 +1,11 @@
 import frame760 from "../assets/Frame 760.png";
-import "./SignUpPage.css";
+import "../css/SignUpPage.css";
 import { useForm } from "react-hook-form";
 import { setAccessToken, setItemInLocalStorage } from "../axios/ index";
 import { toast } from "react-toastify";
 import { useNavigate } from "react-router-dom";
 import { login } from "../api/auth";
+import { ADMIN_2FA_EMAIL_KEY } from "./AdminTwoFactorPage";
 
 const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
@@ -19,6 +20,18 @@ function LoginPage() {
     const onSubmit = async (data) => {
         try {
             const { response, accessToken } = await login(data);
+
+            if (response?.twoFactorRequired) {
+                const pendingEmail = response.email || data.contact;
+                window.sessionStorage.setItem(
+                    ADMIN_2FA_EMAIL_KEY,
+                    pendingEmail,
+                );
+                toast.success("Admin OTP sent to email");
+                navigate("/auth/admin-2fa", { state: { email: pendingEmail } });
+                reset();
+                return;
+            }
 
             if (accessToken) {
                 setAccessToken(accessToken);

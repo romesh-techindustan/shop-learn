@@ -5,8 +5,7 @@ import { toast } from "react-toastify";
 import { changePassword } from "../api/auth";
 import { getProfile } from "../api/users";
 import { setItemInLocalStorage } from "../axios/ index";
-import "./CommercePages.css";
-
+import "../css/CommercePages.css";
 function getStoredUser() {
     try {
         const storedData = localStorage.getItem("userDetail");
@@ -24,7 +23,10 @@ function buildProfileDefaults(user) {
     return {
         firstName,
         lastName: lastNameParts.join(" ") || "Rimel",
-        email: storedUser?.email || storedUser?.user?.email || "rimell111@gmail.com",
+        email:
+            storedUser?.email ||
+            storedUser?.user?.email ||
+            "rimell111@gmail.com",
         address: "Kingston, 5236, United State",
     };
 }
@@ -38,7 +40,7 @@ function AccountPage() {
         confirmPassword: "",
     });
     const [isSavingPassword, setIsSavingPassword] = useState(false);
-    
+
     const displayName = `${profile.firstName} ${profile.lastName}`.trim();
 
     useEffect(() => {
@@ -118,7 +120,9 @@ function AccountPage() {
                 return;
             }
 
-            toast.error(error.response?.data?.message || "Unable to change password");
+            toast.error(
+                error.response?.data?.message || "Unable to change password",
+            );
         } finally {
             setIsSavingPassword(false);
         }
@@ -128,10 +132,7 @@ function AccountPage() {
         <main className="ecommercePageWrapper commerce-page--account profilePageWrapper">
             <div className="appContainer">
                 <div className="profileTopGreeting">
-                    <nav
-                        className="breadcrumbNav"
-                        aria-label="Breadcrumb"
-                    >
+                    <nav className="breadcrumbNav" aria-label="Breadcrumb">
                         <Link to="/">Home</Link>
                         <span className="breadcrumbSeparator">/</span>
                         <span className="breadcrumbCurrentPage">
@@ -154,8 +155,9 @@ function AccountPage() {
                                 <li className="activeProfileMenuLink">
                                     My Profile
                                 </li>
-                                <li>Address Book</li>
-                                <li>My Payment Options</li>
+                                <li>
+                                    <Link to="/address">Saved Addresses</Link>
+                                </li>
                             </ul>
                         </section>
                         <section className="profileSidebarMenu">
@@ -202,23 +204,15 @@ function AccountPage() {
                                         value={profile.lastName}
                                     />
                                 </label>
-                                <label className="profileInputField">
-                                    <span>Email</span>
-                                    <input
-                                        readOnly
-                                        type="email"
-                                        value={profile.email}
-                                    />
-                                </label>
-                                <label className="profileInputField">
-                                    <span>Address</span>
-                                    <input
-                                        readOnly
-                                        type="text"
-                                        value={profile.address}
-                                    />
-                                </label>
                             </div>
+                            <label className="profileInputField">
+                                <span>Email</span>
+                                <input
+                                    readOnly
+                                    type="email"
+                                    value={profile.email}
+                                />
+                            </label>
 
                             <label className="profileInputField">
                                 <span>Password Changes</span>
@@ -269,7 +263,9 @@ function AccountPage() {
                                     disabled={isSavingPassword}
                                     type="submit"
                                 >
-                                    {isSavingPassword ? "Saving..." : "Save Changes"}
+                                    {isSavingPassword
+                                        ? "Saving..."
+                                        : "Save Changes"}
                                 </button>
                             </div>
                         </form>

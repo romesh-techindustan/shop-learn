@@ -5,7 +5,7 @@ import { getAdminOrders } from "../api/orders";
 import { getProducts } from "../api/products";
 import { getUsers } from "../api/users";
 import { formatPrice } from "../common/common";
-import "./AdminPages.css";
+import "../css/AdminPages.css";
 
 /* ── Helpers ───────────────────────────────────────────── */
 function getStoredUser() {
@@ -330,7 +330,7 @@ export default function AdminDashboardPage() {
                                                         <td><StatusBadge status={order.paymentStatus || "unpaid"} /></td>
                                                         <td>
                                                             <Link
-                                                                to={`/admin/orders`}
+                                                                to={`/admin/orders/${order.id}`}
                                                                 className="adminBtn adminBtn--ghost adminBtn--sm"
                                                             >
                                                                 View

@@ -132,6 +132,23 @@
   white-space: nowrap;
 }
 
+.signupPageActionsStacked {
+  align-items: flex-start;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.signupPagePrimaryButtonWide {
+  width: 100%;
+  margin-right: 0;
+}
+
+.signupPagePrimaryButton:disabled {
+  cursor: not-allowed;
+  opacity: 0.65;
+  transform: none;
+}
+
 .signupPageLoginCopy {
   margin: 32px 0 0;
   display: flex;
