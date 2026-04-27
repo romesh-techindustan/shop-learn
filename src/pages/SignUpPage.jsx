@@ -33,31 +33,31 @@ function SignUpPage() {
     };
 
     return (
-        <main className="signup-page">
-            <div className="app-shell__container signup-page__hero">
-                <div className="signup-page__visual">
+        <main className="signupPageWrapper">
+            <div className="appContainer signupPageHeroSection">
+                <div className="signupPageVisual">
                     <img
                         alt=""
-                        className="signup-page__visual-image"
+                        className="signupPageVisualImage"
                         src={frame760}
                     />
                 </div>
 
                 <section
-                    className="signup-page__panel"
+                    className="signupPagePanel"
                     aria-labelledby="signup-title"
                 >
-                    <div className="signup-page__panel-copy">
+                    <div className="signupPagePanelCopy">
                         <h1 id="signup-title">Create an account</h1>
                         <p>Enter your details below</p>
                     </div>
 
                     <form
-                        className="signup-page__form"
+                        className="signupPageForm"
                         onSubmit={handleSubmit(onSubmit)}
                     >
-                        <label className="signup-page__field">
-                            <span className="signup-page__sr-only">Name</span>
+                        <label className="signupPageInputField">
+                            <span className="signupPageSrOnly">Name</span>
                             <input
                                 autoComplete="name"
                                 placeholder="Name"
@@ -68,13 +68,13 @@ function SignUpPage() {
                             />
                         </label>
                         {errors.name && (
-                            <p className="signup-page__error">
+                            <p className="signupPageErrorMessage">
                                 {errors.name.message}
                             </p>
                         )}
 
-                        <label className="signup-page__field">
-                            <span className="signup-page__sr-only">
+                        <label className="signupPageInputField">
+                            <span className="signupPageSrOnly">
                                 Email address
                             </span>
                             <input
@@ -92,13 +92,13 @@ function SignUpPage() {
                             />
                         </label>
                         {errors.contact && (
-                            <p className="signup-page__error">
+                            <p className="signupPageErrorMessage">
                                 {errors.contact.message}
                             </p>
                         )}
 
-                        <label className="signup-page__field">
-                            <span className="signup-page__sr-only">
+                        <label className="signupPageInputField">
+                            <span className="signupPageSrOnly">
                                 Password
                             </span>
                             <input
@@ -111,23 +111,23 @@ function SignUpPage() {
                             />
                         </label>
                         {errors.password && (
-                            <p className="signup-page__error">
+                            <p className="signupPageErrorMessage">
                                 {errors.password.message}
                             </p>
                         )}
 
                         <button
-                            className="signup-page__primary-button"
+                            className="signupPagePrimaryButton"
                             type="submit"
                         >
                             Create Account
                         </button>
                     </form>
 
-                    <p className="signup-page__login-copy">
+                    <p className="signupPageLoginCopy">
                         Already have account?
                         <Link
-                            className="signup-page__text-link"
+                            className="signupPageTextLink"
                             to="/auth/login"
                         >
                             Log in

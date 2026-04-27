@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { addToCart } from "../api/cart";
-import { getProducts } from "../api/products";
+import { getCategories, getProducts } from "../api/products";
 import bootImage from "../assets/boot.png";
 import cameraImage from "../assets/camera.png";
 import chairImage from "../assets/chair.png";
@@ -52,7 +52,7 @@ const productFallbackImages = [
     jacketImage,
 ];
 
-const categoryOptions = [
+const fallbackCategoryOptions = [
     { label: "All Categories", value: "" },
     { label: "T-Shirts", value: "tshirt" },
     { label: "Shirts", value: "shirt" },
@@ -62,6 +62,12 @@ const categoryOptions = [
     { label: "Accessories", value: "accessories" },
 ];
 
+function formatCategoryLabel(category) {
+    return category
+        .replace(/[-_]+/g, " ")
+        .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
+
 function normalizeApiProduct(product, index) {
     return {
         ...product,
@@ -69,8 +75,8 @@ function normalizeApiProduct(product, index) {
             product.image ||
             productFallbackImages[index % productFallbackImages.length],
         price: Number(product.price ?? 0),
-        rating: 5,
-        reviews: Number(product.stock ?? 0),
+        rating: Math.round(Number(product.averageRating ?? 0)),
+        reviews: Number(product.ratingCount ?? 0),
         theme: productThemes[index % productThemes.length],
         showCart: true,
         colors: product.color ? [product.color] : undefined,
@@ -88,6 +94,7 @@ function ProductsPage() {
     const [searchInput, setSearchInput] = useState("");
     const [search, setSearch] = useState("");
     const [category, setCategory] = useState("");
+    const [availableCategories, setAvailableCategories] = useState([]);
     const [page, setPage] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
     const [addingProductId, setAddingProductId] = useState("");
@@ -97,6 +104,44 @@ function ProductsPage() {
 
         return `${total} product${total === 1 ? "" : "s"}`;
     }, [pagination, products.length]);
+
+    const categoryOptions = useMemo(() => {
+        if (!availableCategories.length) {
+            return fallbackCategoryOptions;
+        }
+
+        return [
+            { label: "All Categories", value: "" },
+            ...availableCategories.map((value) => ({
+                label: formatCategoryLabel(value),
+                value,
+            })),
+        ];
+    }, [availableCategories]);
+
+    useEffect(() => {
+        let isMounted = true;
+
+        async function loadCategories() {
+            try {
+                const { response } = await getCategories();
+
+                if (isMounted) {
+                    setAvailableCategories(response ?? []);
+                }
+            } catch {
+                if (isMounted) {
+                    setAvailableCategories([]);
+                }
+            }
+        }
+
+        loadCategories();
+
+        return () => {
+            isMounted = false;
+        };
+    }, []);
 
     useEffect(() => {
         let isMounted = true;
@@ -190,27 +235,27 @@ function ProductsPage() {
     }
 
     return (
-        <main className="products-page home-page">
-            <section className="products-page__section">
-                <div className="app-shell__container">
-                    <nav className="commerce-breadcrumb" aria-label="Breadcrumb">
+        <main className="catalogPageWrapper homePageWrapper">
+            <section className="productsPageSection">
+                <div className="appContainer">
+                    <nav className="breadcrumbNav" aria-label="Breadcrumb">
                         <Link to="/">Home</Link>
-                        <span className="commerce-breadcrumb__divider">/</span>
-                        <span className="commerce-breadcrumb__current">
+                        <span className="breadcrumbSeparator">/</span>
+                        <span className="breadcrumbCurrentPage">
                             Products
                         </span>
                     </nav>
 
                     <SectionEyebrow>Products</SectionEyebrow>
-                    <div className="products-page__header">
+                    <div className="catalogPageHeader">
                         <div>
                             <h1>All Products</h1>
                             <p>{productCountLabel}</p>
                         </div>
 
-                        <div className="products-page__controls">
+                        <div className="productsPageControls">
                             <form
-                                className="products-page__search"
+                                className="productsPageSearch"
                                 onSubmit={handleSearchSubmit}
                             >
                                 <input
@@ -225,8 +270,8 @@ function ProductsPage() {
                                 <button type="submit">Search</button>
                             </form>
 
-                            <label className="products-page__select">
-                                <span className="navbar__sr-only">
+                            <label className="productsPageSelect">
+                                <span className="visuallyHiddenText">
                                     Filter by category
                                 </span>
                                 <select
@@ -247,18 +292,18 @@ function ProductsPage() {
                     </div>
 
                     {isLoading ? (
-                        <div className="products-page__status">
+                        <div className="productsPageStatus">
                             Loading products...
                         </div>
                     ) : null}
 
                     {!isLoading && products.length === 0 ? (
-                        <div className="products-page__status">
+                        <div className="productsPageStatus">
                             No products found.
                         </div>
                     ) : null}
 
-                    <div className="home-product-grid home-product-grid--explore products-page__grid">
+                    <div className="home-product-grid home-product-grid--explore catalogProductsGrid">
                         {products.map((product) => (
                             <ProductCard
                                 isAdding={addingProductId === product.id}
@@ -271,7 +316,7 @@ function ProductsPage() {
 
                     {pagination?.totalPages > 1 ? (
                         <div
-                            className="products-page__pagination"
+                            className="productsPagePagination"
                             aria-label="Product pages"
                         >
                             <button

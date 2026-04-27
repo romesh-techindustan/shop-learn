@@ -10,24 +10,24 @@ function SectionHeader({
     actionTo,
     single = false,
 }) {
-    const classNames = ["home-section__header"];
+    const classNames = ["homeSectionHeader"];
 
     if (timerItems) {
-        classNames.push("home-section__header--sales");
+        classNames.push("homeSectionHeaderSales");
     }
 
     if (single) {
-        classNames.push("home-section__header--single");
+        classNames.push("homeSectionHeaderSingle");
     }
 
     return (
         <div className={classNames.join(" ")}>
             {timerItems ? (
-                <div className="home-section__title-group">
+                <div className="homeSectionTitleGroup">
                     <h2>{title}</h2>
                     <CountdownTimer
-                        className="home-section__timer"
-                        itemClassName="home-section__timer-item"
+                        className="homeSectionTimer"
+                        itemClassName="homeSectionTimerItem"
                         items={timerItems}
                     />
                 </div>
@@ -37,7 +37,7 @@ function SectionHeader({
 
             {actionLabel && actionTo ? (
                 <Link
-                    className="home-page__primary-link home-page__primary-link--compact"
+                    className="homePrimaryLink homePrimaryLinkCompact"
                     to={actionTo}
                 >
                     {actionLabel}
@@ -45,18 +45,18 @@ function SectionHeader({
             ) : null}
 
             {!actionLabel && navigationLabel ? (
-                <div className="home-section__nav-buttons">
+                <div className="homeSectionNavButtons">
                     <button aria-label={`Previous ${navigationLabel}`} type="button">
                         <img
                             alt=""
-                            className="home-section__nav-icon home-section__nav-icon--left"
+                            className="homeSectionNavIcon homeSectionNavIconLeft"
                             src={arrowRightIcon}
                         />
                     </button>
                     <button aria-label={`Next ${navigationLabel}`} type="button">
                         <img
                             alt=""
-                            className="home-section__nav-icon"
+                            className="homeSectionNavIcon"
                             src={arrowRightIcon}
                         />
                     </button>

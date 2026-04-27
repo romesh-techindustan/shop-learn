@@ -65,3 +65,12 @@ export async function cancelOrder(orderId) {
 
   return unwrapResponse(response);
 }
+
+export async function updateStripePaymentStatus(sessionId) {
+  const response = await axiosInstance.post(`/checkout/payment-status`, {
+    sessionId,
+  });
+
+  return unwrapResponse(response);
+}
+

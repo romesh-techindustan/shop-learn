@@ -23,7 +23,9 @@ function LoginPage() {
             if (accessToken) {
                 setAccessToken(accessToken);
                 setItemInLocalStorage("userDetail", response);
-                navigate("/");
+                // Redirect admins to the admin dashboard
+                const isAdmin = response?.isAdmin || response?.user?.isAdmin;
+                navigate(isAdmin ? "/admin" : "/");
             }
 
             reset();
@@ -37,31 +39,31 @@ function LoginPage() {
     };
 
     return (
-        <main className="signup-page">
-            <div className="app-shell__container signup-page__hero">
-                <div className="signup-page__visual">
+        <main className="signupPageWrapper">
+            <div className="appContainer signupPageHeroSection">
+                <div className="signupPageVisual">
                     <img
                         alt=""
-                        className="signup-page__visual-image"
+                        className="signupPageVisualImage"
                         src={frame760}
                     />
                 </div>
 
                 <section
-                    className="signup-page__panel signup-page__panel--login"
+                    className="signupPagePanel signupPagePanelLogin"
                     aria-labelledby="login-title"
                 >
-                    <div className="signup-page__panel-copy">
+                    <div className="signupPagePanelCopy">
                         <h1 id="login-title">Log in to Exclusive</h1>
                         <p>Enter your details below</p>
                     </div>
 
                     <form
-                        className="signup-page__form signup-page__form--login"
+                        className="signupPageForm signupPageFormLogin"
                         onSubmit={handleSubmit(onSubmit)}
                     >
-                        <label className="signup-page__field">
-                            <span className="signup-page__sr-only">
+                        <label className="signupPageInputField">
+                            <span className="signupPageSrOnly">
                                 Email address
                             </span>
                             <input
@@ -79,13 +81,13 @@ function LoginPage() {
                             />
                         </label>
                         {errors.contact && (
-                            <p className="signup-page__error">
+                            <p className="signupPageErrorMessage">
                                 {errors.contact.message}
                             </p>
                         )}
 
-                        <label className="signup-page__field">
-                            <span className="signup-page__sr-only">
+                        <label className="signupPageInputField">
+                            <span className="signupPageSrOnly">
                                 Password
                             </span>
                             <input
@@ -98,21 +100,22 @@ function LoginPage() {
                             />
                         </label>
                         {errors.password && (
-                            <p className="signup-page__error">
+                            <p className="signupPageErrorMessage">
                                 {errors.password.message}
                             </p>
                         )}
 
-                        <div className="signup-page__actions">
+                        <div className="signupPageActions">
                             <button
-                                className="signup-page__primary-button signup-page__primary-button--login"
+                                className="signupPagePrimaryButton signupPagePrimaryButtonLogin"
                                 type="submit"
                             >
                                 Log In
                             </button>
 
                             <button
-                                className="signup-page__forgot-link"
+                                className="signupPageForgotLink"
+                                onClick={() => navigate("/auth/forgot-password")}
                                 type="button"
                             >
                                 Forget Password?

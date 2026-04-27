@@ -4,14 +4,22 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
 import { getCart } from "../api/cart";
 import { checkout as createCheckout } from "../api/orders";
+import { getAddresses, createAddress } from "../api/addresses";
 import gamepadImage from "../assets/GP11.png";
 import monitorImage from "../assets/monitor.png";
+import { loadStripe } from "@stripe/stripe-js";
+import {
+    EmbeddedCheckoutProvider,
+    EmbeddedCheckout
+} from "@stripe/react-stripe-js";
 import { formatPrice } from "../common/common";
+import { buildAssetUrl } from "../common/constant";
 import "./CommercePages.css";
 
-const billingFields = [
+const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
+
+const shippingFields = [
     { id: "name", label: "Full Name", required: true, autoComplete: "name" },
-    { id: "company", label: "Company Name" },
     {
         id: "line1",
         label: "Street Address",
@@ -47,11 +55,11 @@ function getCheckoutItemName(item) {
 }
 
 function getCheckoutItemImage(item, index) {
-    return item.product?.image || item.productImage || fallbackImages[index % fallbackImages.length];
+    return buildAssetUrl(item.product?.image || item.productImage) || fallbackImages[index % fallbackImages.length];
 }
 
-function buildCheckoutPayload(data, paymentMethod) {
-    const shippingAddress = {
+function buildCheckoutPayload(data, paymentMethod, addressId) {
+    const shippingAddress = addressId ? undefined : {
         name: data.name,
         phone: data.phone || undefined,
         line1: data.line1,
@@ -66,6 +74,8 @@ function buildCheckoutPayload(data, paymentMethod) {
         currency: "usd",
         paymentMethod,
         shippingAddress,
+        saveAddress: !addressId,
+        addressId: addressId || undefined,
     };
 }
 
@@ -75,7 +85,10 @@ function CheckoutPage() {
     const [paymentMethod, setPaymentMethod] = useState("cod");
     const [isLoading, setIsLoading] = useState(true);
     const [isSubmitting, setIsSubmitting] = useState(false);
-    const { register, handleSubmit } = useForm({
+    const [clientSecret, setClientSecret] = useState("");
+    const [addresses, setAddresses] = useState([]);
+    const [selectedAddressId, setSelectedAddressId] = useState("");
+    const { register, handleSubmit, reset } = useForm({
         defaultValues: {
             country: "US",
         },
@@ -84,12 +97,19 @@ function CheckoutPage() {
     useEffect(() => {
         let isMounted = true;
 
-        async function loadInitialCart() {
+        async function loadData() {
             try {
-                const { response } = await getCart();
+                const [{ response: cartRes }, { response: addrRes }] = await Promise.all([
+                    getCart(),
+                    getAddresses(),
+                ]);
 
                 if (isMounted) {
-                    setCart(response);
+                    setCart(cartRes);
+                    setAddresses(addrRes || []);
+                    if (addrRes?.length > 0) {
+                        setSelectedAddressId(addrRes[0].id);
+                    }
                 }
             } catch (error) {
                 if (error.response?.status === 401) {
@@ -97,7 +117,6 @@ function CheckoutPage() {
                     navigate("/auth/login");
                     return;
                 }
-
                 toast.error(getApiErrorMessage(error));
             } finally {
                 if (isMounted) {
@@ -106,7 +125,7 @@ function CheckoutPage() {
             }
         }
 
-        loadInitialCart();
+        loadData();
 
         return () => {
             isMounted = false;
@@ -122,14 +141,34 @@ function CheckoutPage() {
         setIsSubmitting(true);
 
         try {
-            const payload = buildCheckoutPayload(data, paymentMethod);
+            let finalAddressId = selectedAddressId;
+
+            if (selectedAddressId === "new") {
+                const addrPayload = {
+                    name: data.name,
+                    phone: data.phone,
+                    line1: data.line1,
+                    line2: data.line2,
+                    city: data.city,
+                    state: data.state,
+                    postalCode: data.postalCode,
+                    country: data.country.toUpperCase(),
+                };
+                const { response: newAddr } = await createAddress(addrPayload);
+                console.log("6757657", newAddr);
+                finalAddressId = newAddr.id;
+            }
+
+            const payload = buildCheckoutPayload(data, paymentMethod, finalAddressId);
             const { response } = await createCheckout(payload);
 
-            toast.success(
-                response.paymentProvider === "stripe"
-                    ? "Stripe checkout created"
-                    : "Order placed successfully",
-            );
+            if (response.paymentProvider === "stripe" && response.clientSecret) {
+                toast.success("Stripe checkout created");
+                setClientSecret(response.clientSecret);
+                return;
+            }
+
+            toast.success("Order placed successfully");
             navigate("/orders");
         } catch (error) {
             toast.error(getApiErrorMessage(error));
@@ -142,175 +181,210 @@ function CheckoutPage() {
     const subtotal = Number(cart?.subtotal ?? 0);
 
     return (
-        <main className="commerce-page checkout-page">
-            <div className="app-shell__container">
-                <nav className="commerce-breadcrumb" aria-label="Breadcrumb">
+        <main className="ecommercePageWrapper checkoutPageWrapper">
+            <div className="appContainer">
+                <nav className="breadcrumbNav" aria-label="Breadcrumb">
                     <span>Account</span>
-                    <span className="commerce-breadcrumb__divider">/</span>
+                    <span className="breadcrumbSeparator">/</span>
                     <span>My Account</span>
-                    <span className="commerce-breadcrumb__divider">/</span>
+                    <span className="breadcrumbSeparator">/</span>
                     <span>Product</span>
-                    <span className="commerce-breadcrumb__divider">/</span>
+                    <span className="breadcrumbSeparator">/</span>
                     <span>View Cart</span>
-                    <span className="commerce-breadcrumb__divider">/</span>
-                    <span className="commerce-breadcrumb__current">
+                    <span className="breadcrumbSeparator">/</span>
+                    <span className="breadcrumbCurrentPage">
                         CheckOut
                     </span>
                 </nav>
 
-                <div className="checkout-page__layout">
-                    <section aria-labelledby="billing-title">
-                        <h1 id="billing-title">Billing Details</h1>
-                        <form className="checkout-page__form">
-                            {billingFields.map((field) => (
-                                <label
-                                    className="checkout-page__field"
-                                    key={field.id}
-                                >
-                                    <span>
-                                        {field.label}
-                                        {field.required && <strong>*</strong>}
-                                    </span>
-                                    <input
-                                        autoComplete={field.autoComplete || field.id}
-                                        defaultValue={field.defaultValue}
-                                        required={field.required}
-                                        type={field.type || "text"}
-                                        {...register(field.id, {
-                                            required: field.required,
-                                            setValueAs: (value) =>
-                                                typeof value === "string"
-                                                    ? value.trim()
-                                                    : value,
-                                        })}
-                                    />
-                                </label>
-                            ))}
+                {clientSecret ? (
+                    <div id="checkout" style={{ marginTop: "40px", minHeight: "600px" }}>
+                        <EmbeddedCheckoutProvider
+                            stripe={stripePromise}
+                            options={{ clientSecret }}
+                        >
+                            <EmbeddedCheckout />
+                        </EmbeddedCheckoutProvider>
+                    </div>
+                ) : (
+                    <div className="checkoutPageLayout">
+                        <section aria-labelledby="shipping-title">
+                            <h1 id="shipping-title">Shipping Details</h1>
 
-                            <label className="checkout-page__save">
-                                <input defaultChecked type="checkbox" />
-                                <span
-                                    aria-hidden="true"
-                                    className="checkout-page__checkbox"
-                                >
-                                    ✓
-                                </span>
-                                <span>
-                                    Save this information for faster check-out
-                                    next time
-                                </span>
-                            </label>
-                        </form>
-                    </section>
+                            {addresses.length > 0 && (
+                                <div style={{ marginBottom: "24px" }}>
+                                    <label className="checkoutInputField">
+                                        <span>Select Existing Address</span>
+                                        <select
+                                            className="commerce-input"
+                                            value={selectedAddressId}
+                                            onChange={(e) => setSelectedAddressId(e.target.value)}
+                                            style={{ width: "100%", appearance: "auto" }}
+                                        >
+                                            {addresses.map((addr) => (
+                                                <option key={addr.id} value={addr.id}>
+                                                    {addr.name} - {addr.line1}, {addr.city}
+                                                </option>
+                                            ))}
+                                            <option value="new">+ Add New Address</option>
+                                        </select>
+                                    </label>
+                                </div>
+                            )}
 
-                    <aside className="checkout-page__summary">
-                        <div className="checkout-page__items">
-                            {isLoading ? <span>Loading checkout...</span> : null}
-                            {!isLoading && checkoutItems.length === 0 ? (
-                                <span>Your cart is empty.</span>
-                            ) : null}
-                            {checkoutItems.map((item, index) => (
-                                <div
-                                    className="checkout-page__item"
-                                    key={item.id}
-                                >
-                                    <div className="checkout-page__product">
-                                        <img
-                                            alt=""
-                                            src={getCheckoutItemImage(
-                                                item,
-                                                index,
-                                            )}
-                                        />
-                                        <span>{getCheckoutItemName(item)}</span>
+                            {(selectedAddressId === "new" || addresses.length === 0) && (
+                                <form className="checkoutShippingForm">
+                                    {shippingFields.map((field) => (
+                                        <label
+                                            className="checkoutInputField"
+                                            key={field.id}
+                                        >
+                                            <span>
+                                                {field.label}
+                                                {field.required && <strong>*</strong>}
+                                            </span>
+                                            <input
+                                                autoComplete={field.autoComplete || field.id}
+                                                defaultValue={field.defaultValue}
+                                                required={field.required}
+                                                type={field.type || "text"}
+                                                {...register(field.id, {
+                                                    required: selectedAddressId === "new" || addresses.length === 0 ? field.required : false,
+                                                    setValueAs: (value) =>
+                                                        typeof value === "string"
+                                                            ? value.trim()
+                                                            : value,
+                                                })}
+                                            />
+                                        </label>
+                                    ))}
+
+                                    <label className="checkoutSaveInfoOption">
+                                        <input defaultChecked type="checkbox" />
+                                        <span
+                                            aria-hidden="true"
+                                            className="checkoutSaveInfoCheckbox"
+                                        >
+                                            ✓
+                                        </span>
+                                        <span>
+                                            Save this information for faster check-out
+                                            next time
+                                        </span>
+                                    </label>
+                                </form>
+                            )}
+                        </section>
+
+                        <aside className="checkoutOrderSummary">
+                            <div className="checkoutOrderSummaryList">
+                                {isLoading ? <span>Loading checkout...</span> : null}
+                                {!isLoading && checkoutItems.length === 0 ? (
+                                    <span>Your cart is empty.</span>
+                                ) : null}
+                                {checkoutItems.map((item, index) => (
+                                    <div
+                                        className="checkoutOrderSummaryItem"
+                                        key={item.id}
+                                    >
+                                        <div className="checkoutProductInfo">
+                                            <img
+                                                alt=""
+                                                src={getCheckoutItemImage(
+                                                    item,
+                                                    index,
+                                                )}
+                                            />
+                                            <span>{getCheckoutItemName(item)}</span>
+                                        </div>
+                                        <span>{formatPrice(item.lineTotal)}</span>
                                     </div>
-                                    <span>{formatPrice(item.lineTotal)}</span>
-                                </div>
-                            ))}
-                        </div>
-
-                        <div className="checkout-page__line">
-                            <span>Subtotal:</span>
-                            <span>{formatPrice(subtotal)}</span>
-                        </div>
-                        <div className="checkout-page__line">
-                            <span>Shipping:</span>
-                            <span>Free</span>
-                        </div>
-                        <div className="checkout-page__line">
-                            <span>Total:</span>
-                            <span>{formatPrice(subtotal)}</span>
-                        </div>
-
-                        <div className="checkout-page__payments">
-                            <div className="checkout-page__payment-head">
-                                <label className="checkout-page__radio">
-                                    <input
-                                        checked={paymentMethod === "stripe"}
-                                        name="payment"
-                                        onChange={() =>
-                                            setPaymentMethod("stripe")
-                                        }
-                                        type="radio"
-                                    />
-                                    <span className="checkout-page__radio-mark" />
-                                    <span>Bank</span>
-                                </label>
-                                <div
-                                    aria-label="Supported payment methods"
-                                    className="checkout-page__logos"
-                                >
-                                    <span className="checkout-page__logo checkout-page__logo--bkash">
-                                        bKash
-                                    </span>
-                                    <span className="checkout-page__logo checkout-page__logo--visa">
-                                        VISA
-                                    </span>
-                                    <span className="checkout-page__logo checkout-page__logo--master">
-                                        MasterCard
-                                    </span>
-                                    <span className="checkout-page__logo checkout-page__logo--nagad">
-                                        nagad
-                                    </span>
-                                </div>
+                                ))}
                             </div>
 
-                            <label className="checkout-page__radio">
-                                <input
-                                    checked={paymentMethod === "cod"}
-                                    name="payment"
-                                    onChange={() => setPaymentMethod("cod")}
-                                    type="radio"
-                                />
-                                <span className="checkout-page__radio-mark" />
-                                <span>Cash on delivery</span>
-                            </label>
-                        </div>
+                            <div className="checkoutTotalLine">
+                                <span>Subtotal:</span>
+                                <span>{formatPrice(subtotal)}</span>
+                            </div>
+                            <div className="checkoutTotalLine">
+                                <span>Shipping:</span>
+                                <span>Free</span>
+                            </div>
+                            <div className="checkoutTotalLine">
+                                <span>Total:</span>
+                                <span>{formatPrice(subtotal)}</span>
+                            </div>
 
-                        <form className="checkout-page__coupon">
-                            <input
-                                className="commerce-input"
-                                placeholder="Coupon Code"
-                                type="text"
-                            />
+                            <div className="checkoutPaymentMethods">
+                                <div className="checkoutPaymentHeader">
+                                    <label className="checkoutPaymentRadio">
+                                        <input
+                                            checked={paymentMethod === "stripe"}
+                                            name="payment"
+                                            onChange={() =>
+                                                setPaymentMethod("stripe")
+                                            }
+                                            type="radio"
+                                        />
+                                        <span className="checkoutRadioCustomMark" />
+                                        <span>Bank</span>
+                                    </label>
+                                    <div
+                                        aria-label="Supported payment methods"
+                                        className="checkoutPaymentLogos"
+                                    >
+                                        <span className="checkoutPaymentLogo paymentLogoBkash">
+                                            bKash
+                                        </span>
+                                        <span className="checkoutPaymentLogo paymentLogoVisa">
+                                            VISA
+                                        </span>
+                                        <span className="checkoutPaymentLogo paymentLogoMastercard">
+                                            MasterCard
+                                        </span>
+                                        <span className="checkoutPaymentLogo paymentLogoNagad">
+                                            nagad
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <label className="checkoutPaymentRadio">
+                                    <input
+                                        checked={paymentMethod === "cod"}
+                                        name="payment"
+                                        onChange={() => setPaymentMethod("cod")}
+                                        type="radio"
+                                    />
+                                    <span className="checkoutRadioCustomMark" />
+                                    <span>Cash on delivery</span>
+                                </label>
+                            </div>
+
+                            <form className="checkoutCouponInput">
+                                <input
+                                    className="commerce-input"
+                                    placeholder="Coupon Code"
+                                    type="text"
+                                />
+                                <button
+                                    className="commerce-button commerce-button--primary"
+                                    type="button"
+                                >
+                                    Apply Coupon
+                                </button>
+                            </form>
+
                             <button
-                                className="commerce-button commerce-button--primary"
+                                className="commerce-button commerce-button--primary checkoutPlaceOrderBtn"
+                                disabled={isSubmitting || isLoading}
+                                onClick={handleSubmit(onSubmit)}
                                 type="button"
                             >
-                                Apply Coupon
+                                {isSubmitting ? "Placing..." : "Place Order"}
                             </button>
-                        </form>
-
-                        <button
-                            className="commerce-button commerce-button--primary checkout-page__place-order"
-                            disabled={isSubmitting || isLoading}
-                            onClick={handleSubmit(onSubmit)}
-                            type="button"
-                        >
-                            {isSubmitting ? "Placing..." : "Place Order"}
-                        </button>
-                    </aside>
-                </div>
+                        </aside>
+                    </div>
+                )}
             </div>
         </main>
     );

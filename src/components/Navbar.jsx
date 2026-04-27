@@ -12,8 +12,8 @@ import "./Navbar.css";
 
 const navItems = [
     { id: "home", label: "Home", to: "/" },
-    { id: "contact", label: "Contact" },
-    { id: "about", label: "About" },
+    { id: "contact", label: "Contact", to: "/contact" },
+    { id: "about", label: "About", to: "/about" },
     { id: "sign-up", label: "Sign Up", to: "/auth/sign-up" },
 ];
 
@@ -177,30 +177,30 @@ function Navbar() {
     }, [loadCartCount]);
 
     return (
-        <div className="navbar">
-            <div className="navbar__promo">
-                <div className="app-shell__container navbar__promo-inner">
-                    <p className="navbar__promo-text">
+        <div className="navBar">
+            <div className="topPromoBanner">
+                <div className="appContainer promoBannerContent">
+                    <p className="promoAnnouncementText">
                         Summer Sale For All Swim Suits And Free Express Delivery
                         - OFF 50%!
-                        <button className="navbar__text-link" type="button">
+                        <button className="promoShopNowLink" type="button">
                             ShopNow
                         </button>
                     </p>
-                    <button className="navbar__language" type="button">
+                    <button className="languageSelector" type="button">
                         English
                         <span aria-hidden="true">▾</span>
                     </button>
                 </div>
             </div>
 
-            <header className="navbar__header">
-                <div className="app-shell__container navbar__header-inner">
-                    <Link className="navbar__brand" to="/">
+            <header className="mainHeaderSection">
+                <div className="appContainer headerContentWrapper">
+                    <Link className="brandLogo" to="/">
                         Exclusive
                     </Link>
 
-                    <nav aria-label="Primary" className="navbar__nav">
+                    <nav aria-label="Primary" className="primaryNavLinks">
                         {visibleNavItems.map((item) =>
                             item.to ? (
                                 <Link
@@ -209,9 +209,9 @@ function Navbar() {
                                             ? "page"
                                             : undefined
                                     }
-                                    className={`navbar__nav-link ${
+                                    className={`navLinkItem ${
                                         activeItem === item.id
-                                            ? "navbar__nav-link--active"
+                                            ? "activeNavLink"
                                             : ""
                                     }`}
                                     key={item.id}
@@ -221,7 +221,7 @@ function Navbar() {
                                 </Link>
                             ) : (
                                 <button
-                                    className="navbar__nav-link"
+                                    className="navLinkItem"
                                     key={item.id}
                                     type="button"
                                 >
@@ -231,9 +231,9 @@ function Navbar() {
                         )}
                     </nav>
 
-                    <div className="navbar__tools">
-                        <label className="navbar__search">
-                            <span className="navbar__sr-only">
+                    <div className="headerToolsGroup">
+                        <label className="searchBarContainer">
+                            <span className="visuallyHiddenText">
                                 Search products
                             </span>
                             <input
@@ -244,23 +244,23 @@ function Navbar() {
                             <SearchIcon />
                         </label>
 
-                        <div className="navbar__icon-group">
-                            <button
+                        <div className="userToolsGroup">
+                            <Link
                                 aria-label="Wishlist"
-                                className="navbar__tool"
-                                type="button"
+                                className="toolIconButton"
+                                to="/wishlist"
                             >
                                 <img alt="" src={wishlistIcon} />
-                            </button>
+                            </Link>
 
                             <Link
                                 aria-label="Cart"
-                                className="navbar__tool navbar__tool--cart"
+                                className="toolIconButton navbar__tool--cart"
                                 to="/cart"
                             >
                                 <img alt="" src={cartIcon} />
                                 {cartCount > 0 ? (
-                                    <span className="navbar__tool-badge">
+                                    <span className="cartItemCountBadge">
                                         {cartCount}
                                     </span>
                                 ) : null}
@@ -269,7 +269,7 @@ function Navbar() {
                             {isLoggedIn ? (
                                 <Link
                                     aria-label={`Account for ${userName}`}
-                                    className="navbar__tool navbar__tool--user navbar__account-initials"
+                                    className="toolIconButton userAccountButton userInitialsAvatar"
                                     to="/account"
                                 >
                                     {userInitials}
@@ -277,17 +277,17 @@ function Navbar() {
                             ) : (
                                 <Link
                                     aria-label="Account"
-                                    className="navbar__tool navbar__tool--user"
+                                    className="toolIconButton userAccountButton"
                                     to="/auth/login"
                                 >
                                     <img alt="" src={userIcon} />
                                 </Link>
                             )}
 
-                            <div className="navbar__user-menu">
+                            <div className="userDropdownMenu">
                                 {accountMenuItems.map((item) => (
                                     <Link
-                                        className="navbar__menu-item"
+                                        className="dropdownMenuItem"
                                         key={item.id}
                                         onClick={() => handleClick(item)}
                                         to={item.to}

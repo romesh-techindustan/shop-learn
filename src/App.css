@@ -48,7 +48,7 @@ input {
   min-height: 100vh;
 }
 
-.app-shell {
+.appLayoutWrapper {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -57,23 +57,23 @@ input {
     #ffffff;
 }
 
-.app-shell__content {
+.appMainContent {
   flex: 1;
 }
 
-.app-shell__container {
+.appContainer {
   width: min(1180px, calc(100% - 48px));
   margin: 0 auto;
 }
 
 @media (max-width: 860px) {
-  .app-shell__container {
+  .appContainer {
     width: min(1180px, calc(100% - 32px));
   }
 }
 
 @media (max-width: 620px) {
-  .app-shell__container {
+  .appContainer {
     width: min(1180px, calc(100% - 24px));
   }
 }

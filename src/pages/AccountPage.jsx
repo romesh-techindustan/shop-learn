@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
+import { changePassword } from "../api/auth";
 import { getProfile } from "../api/users";
 import { setItemInLocalStorage } from "../axios/ index";
 import "./CommercePages.css";
@@ -31,6 +32,12 @@ function buildProfileDefaults(user) {
 function AccountPage() {
     const navigate = useNavigate();
     const [profile, setProfile] = useState(() => buildProfileDefaults());
+    const [passwordData, setPasswordData] = useState({
+        currentPassword: "",
+        newPassword: "",
+        confirmPassword: "",
+    });
+    const [isSavingPassword, setIsSavingPassword] = useState(false);
     
     const displayName = `${profile.firstName} ${profile.lastName}`.trim();
 
@@ -68,64 +75,118 @@ function AccountPage() {
         };
     }, [navigate]);
 
+    function handlePasswordChange(event) {
+        const { name, value } = event.target;
+
+        setPasswordData((currentData) => ({
+            ...currentData,
+            [name]: value,
+        }));
+    }
+
+    async function handleSubmit(event) {
+        event.preventDefault();
+
+        if (
+            !passwordData.currentPassword &&
+            !passwordData.newPassword &&
+            !passwordData.confirmPassword
+        ) {
+            toast.info("Enter password details to save changes");
+            return;
+        }
+
+        if (passwordData.newPassword !== passwordData.confirmPassword) {
+            toast.error("New password and confirm password must match");
+            return;
+        }
+
+        setIsSavingPassword(true);
+
+        try {
+            await changePassword(passwordData);
+            toast.success("Password changed successfully");
+            setPasswordData({
+                currentPassword: "",
+                newPassword: "",
+                confirmPassword: "",
+            });
+        } catch (error) {
+            if (error.response?.status === 401) {
+                toast.error("Log in again to change your password");
+                navigate("/auth/login");
+                return;
+            }
+
+            toast.error(error.response?.data?.message || "Unable to change password");
+        } finally {
+            setIsSavingPassword(false);
+        }
+    }
+
     return (
-        <main className="commerce-page commerce-page--account account-page">
-            <div className="app-shell__container">
-                <div className="account-page__topline">
+        <main className="ecommercePageWrapper commerce-page--account profilePageWrapper">
+            <div className="appContainer">
+                <div className="profileTopGreeting">
                     <nav
-                        className="commerce-breadcrumb"
+                        className="breadcrumbNav"
                         aria-label="Breadcrumb"
                     >
                         <Link to="/">Home</Link>
-                        <span className="commerce-breadcrumb__divider">/</span>
-                        <span className="commerce-breadcrumb__current">
+                        <span className="breadcrumbSeparator">/</span>
+                        <span className="breadcrumbCurrentPage">
                             My Account
                         </span>
                     </nav>
-                    <p className="account-page__welcome">
+                    <p className="profileWelcomeText">
                         Welcome! <strong>{displayName}</strong>
                     </p>
                 </div>
 
-                <div className="account-page__layout">
+                <div className="profilePageLayout">
                     <aside
                         aria-label="Account sections"
-                        className="account-page__sidebar"
+                        className="profileNavSidebar"
                     >
-                        <section className="account-page__menu">
+                        <section className="profileSidebarMenu">
                             <h2>Manage My Account</h2>
                             <ul>
-                                <li className="account-page__active">
+                                <li className="activeProfileMenuLink">
                                     My Profile
                                 </li>
                                 <li>Address Book</li>
                                 <li>My Payment Options</li>
                             </ul>
                         </section>
-                        <section className="account-page__menu">
+                        <section className="profileSidebarMenu">
                             <h2>My Orders</h2>
                             <ul>
+                                <li>
+                                    <Link to="/orders">My Orders</Link>
+                                </li>
                                 <li>My Returns</li>
                                 <li>My Cancellations</li>
                             </ul>
                         </section>
-                        <section className="account-page__menu">
-                            <h2>My WishList</h2>
+                        <section className="profileSidebarMenu">
+                            <h2>
+                                <Link to="/wishlist">My WishList</Link>
+                            </h2>
                         </section>
                     </aside>
 
                     <section
-                        className="account-page__panel"
+                        className="profileMainPanel"
                         aria-labelledby="profile-title"
                     >
                         <h1 id="profile-title">Edit Your Profile</h1>
 
                         <form
-                            className="account-page__form"
-                            onSubmit={(event) => event.preventDefault()}
+                            className="profileDetailsForm"
+                            onSubmit={handleSubmit}
                         >
-                            <div className="account-page__field-grid">
-                                <label className="account-page__field">
+                            <div className="profileInputGrid">
+                                <label className="profileInputField">
                                     <span>First Name</span>
                                     <input
                                         readOnly
@@ -133,7 +194,7 @@ function AccountPage() {
                                         value={profile.firstName}
                                     />
                                 </label>
-                                <label className="account-page__field">
+                                <label className="profileInputField">
                                     <span>Last Name</span>
                                     <input
                                         readOnly
@@ -141,7 +202,7 @@ function AccountPage() {
                                         value={profile.lastName}
                                     />
                                 </label>
-                                <label className="account-page__field">
+                                <label className="profileInputField">
                                     <span>Email</span>
                                     <input
                                         readOnly
@@ -149,7 +210,7 @@ function AccountPage() {
                                         value={profile.email}
                                     />
                                 </label>
-                                <label className="account-page__field">
+                                <label className="profileInputField">
                                     <span>Address</span>
                                     <input
                                         readOnly
@@ -159,36 +220,56 @@ function AccountPage() {
                                 </label>
                             </div>
 
-                            <label className="account-page__field">
+                            <label className="profileInputField">
                                 <span>Password Changes</span>
-                                <div className="account-page__passwords">
+                                <div className="profilePasswordSection">
                                     <input
+                                        autoComplete="current-password"
+                                        name="currentPassword"
+                                        onChange={handlePasswordChange}
                                         placeholder="Current Password"
                                         type="password"
+                                        value={passwordData.currentPassword}
                                     />
                                     <input
+                                        autoComplete="new-password"
+                                        name="newPassword"
+                                        onChange={handlePasswordChange}
                                         placeholder="New Password"
                                         type="password"
+                                        value={passwordData.newPassword}
                                     />
                                     <input
+                                        autoComplete="new-password"
+                                        name="confirmPassword"
+                                        onChange={handlePasswordChange}
                                         placeholder="Confirm New Password"
                                         type="password"
+                                        value={passwordData.confirmPassword}
                                     />
                                 </div>
                             </label>
 
-                            <div className="account-page__actions">
+                            <div className="profileActionButtons">
                                 <button
-                                    className="account-page__cancel"
+                                    className="profileCancelButton"
+                                    onClick={() =>
+                                        setPasswordData({
+                                            currentPassword: "",
+                                            newPassword: "",
+                                            confirmPassword: "",
+                                        })
+                                    }
                                     type="button"
                                 >
                                     Cancel
                                 </button>
                                 <button
-                                    className="commerce-button commerce-button--primary account-page__save"
+                                    className="commerce-button commerce-button--primary profileSaveButton"
+                                    disabled={isSavingPassword}
                                     type="submit"
                                 >
-                                    Save Changes
+                                    {isSavingPassword ? "Saving..." : "Save Changes"}
                                 </button>
                             </div>
                         </form>

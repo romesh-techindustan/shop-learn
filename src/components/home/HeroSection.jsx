@@ -9,15 +9,15 @@ function HeroSection({
     to,
 }) {
     return (
-        <section className="home-page__hero">
-            <div className="app-shell__container home-page__hero-grid">
+        <section className="homePageHeroSection">
+            <div className="appContainer homeHeroGrid">
                 <aside
                     aria-label="Product Categories"
-                    className="home-page__sidebar"
+                    className="homeHeroSidebar"
                 >
                     {categories.map((category) => (
                         <button
-                            className="home-page__sidebar-link"
+                            className="homeSidebarLink"
                             key={category.label}
                             type="button"
                         >
@@ -25,7 +25,7 @@ function HeroSection({
                             {category.nested ? (
                                 <img
                                     alt=""
-                                    className="home-page__sidebar-arrow"
+                                    className="homeSidebarArrowIcon"
                                     src={arrowIcon}
                                 />
                             ) : null}
@@ -33,24 +33,24 @@ function HeroSection({
                     ))}
                 </aside>
 
-                <div className="home-page__hero-banner">
-                    <div className="home-page__hero-copy">
-                        <p className="home-page__hero-kicker">
+                <div className="homeHeroBanner">
+                    <div className="homeHeroCopy">
+                        <p className="homeHeroEyebrow">
                             <img alt="" src={appleLogo} />
                             iPhone 14 Series
                         </p>
                         <h1>Up to 10% off Voucher</h1>
-                        <Link className="home-page__hero-cta" to={to}>
+                        <Link className="homeHeroCallToAction" to={to}>
                             Shop Now
                             <img alt="" src={arrowIcon} />
                         </Link>
                     </div>
 
-                    <div className="home-page__hero-artwork">
+                    <div className="homeHeroArtwork">
                         <img alt={heroImageAlt} src={heroImage} />
                     </div>
 
-                    <div className="home-page__hero-dots" aria-label="Hero Slides">
+                    <div className="homeHeroPaginationDots" aria-label="Hero Slides">
                         <span />
                         <span />
                         <span className="is-active" />

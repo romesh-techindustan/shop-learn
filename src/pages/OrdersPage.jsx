@@ -1,183 +1,133 @@
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { toast } from "react-toastify";
-import { cancelOrder, getOrders, retryPayment } from "../api/orders";
+import { getOrders } from "../api/orders";
 import { formatPrice } from "../common/common";
 import "./CommercePages.css";
 
-function getApiErrorMessage(error) {
-    return error.response?.data?.message || "Something went wrong";
-}
+function OrderStatusBadge({ status }) {
+    const statusColors = {
+        pending: "#f39c12",
+        completed: "#2ecc71",
+        shipped: "#3498db",
+        cancelled: "#e74c3c",
+    };
 
-function canCancelOrder(order) {
-    return order.status === "pending" && order.paymentStatus === "pending";
-}
-
-function canRetryPayment(order) {
     return (
-        order.paymentProvider === "stripe" &&
-        ["failed", "cancelled"].includes(order.paymentStatus)
+        <span
+            style={{
+                display: "inline-block",
+                padding: "4px 12px",
+                borderRadius: "20px",
+                fontSize: "0.85rem",
+                fontWeight: "600",
+                color: "#ffffff",
+                backgroundColor: statusColors[status.toLowerCase()] || "#95a5a6",
+                textTransform: "capitalize",
+            }}
+        >
+            {status}
+        </span>
     );
 }
 
-function OrdersPage() {
-    const navigate = useNavigate();
+export default function OrdersPage() {
     const [orders, setOrders] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
-    const [pendingOrderId, setPendingOrderId] = useState("");
-
-    const loadOrders = useCallback(async () => {
-        setIsLoading(true);
-
-        try {
-            const { response } = await getOrders();
-            setOrders(response ?? []);
-        } catch (error) {
-            if (error.response?.status === 401) {
-                toast.error("Log in to view your orders");
-                navigate("/auth/login");
-                return;
-            }
-
-            toast.error(getApiErrorMessage(error));
-        } finally {
-            setIsLoading(false);
-        }
-    }, [navigate]);
+    const [loading, setLoading] = useState(true);
+    const navigate = useNavigate();
 
     useEffect(() => {
         let isMounted = true;
 
-        async function loadInitialOrders() {
+        async function fetchOrders() {
             try {
                 const { response } = await getOrders();
-
+                console.log("86876868", response);
                 if (isMounted) {
-                    setOrders(response ?? []);
+                    setOrders(response);
                 }
             } catch (error) {
                 if (error.response?.status === 401) {
-                    toast.error("Log in to view your orders");
                     navigate("/auth/login");
                     return;
                 }
-
-                toast.error(getApiErrorMessage(error));
+                toast.error("Failed to load orders");
             } finally {
                 if (isMounted) {
-                    setIsLoading(false);
+                    setLoading(false);
                 }
             }
         }
 
-        loadInitialOrders();
+        fetchOrders();
 
         return () => {
             isMounted = false;
         };
     }, [navigate]);
 
-    async function handleCancel(orderId) {
-        setPendingOrderId(orderId);
-
-        try {
-            await cancelOrder(orderId);
-            toast.success("Order cancelled");
-            loadOrders();
-        } catch (error) {
-            toast.error(getApiErrorMessage(error));
-        } finally {
-            setPendingOrderId("");
-        }
-    }
-
-    async function handleRetry(orderId) {
-        setPendingOrderId(orderId);
-
-        try {
-            await retryPayment(orderId);
-            toast.success("Payment retry created");
-            loadOrders();
-        } catch (error) {
-            toast.error(getApiErrorMessage(error));
-        } finally {
-            setPendingOrderId("");
-        }
-    }
-
     return (
-        <main className="commerce-page order-page">
-            <div className="app-shell__container">
-                <nav className="commerce-breadcrumb" aria-label="Breadcrumb">
+        <main className="ecommercePageWrapper commerce-page--account">
+            <div className="appContainer">
+                <nav className="breadcrumbNav" aria-label="Breadcrumb">
                     <Link to="/">Home</Link>
-                    <span className="commerce-breadcrumb__divider">/</span>
-                    <span className="commerce-breadcrumb__current">Orders</span>
+                    <span className="breadcrumbSeparator">/</span>
+                    <span className="breadcrumbCurrentPage">My Orders</span>
                 </nav>
 
-                <section className="order-page__header">
+                <div className="orderPageHeader">
                     <h1>My Orders</h1>
-                    <button
-                        className="commerce-button"
-                        onClick={loadOrders}
-                        type="button"
-                    >
-                        Refresh
-                    </button>
-                </section>
+                </div>
 
-                <section className="order-page__list" aria-label="Orders">
-                    {isLoading ? <article>Loading orders...</article> : null}
-                    {!isLoading && orders.length === 0 ? (
-                        <article>No orders found.</article>
-                    ) : null}
-                    {orders.map((order) => (
-                        <article className="order-card" key={order.id}>
-                            <div className="order-card__top">
-                                <div>
-                                    <h2>Order {order.id.slice(0, 8)}</h2>
-                                    <p>
-                                        {order.status} / {order.paymentStatus}
-                                    </p>
+                {loading ? (
+                    <div style={{ textAlign: "center", padding: "40px" }}>Loading orders...</div>
+                ) : orders.length === 0 ? (
+                    <div style={{ textAlign: "center", padding: "60px" }}>
+                        <p>You haven't placed any orders yet.</p>
+                        <Link to="/" className="commerce-button commerce-button--primary">
+                            Go Shopping
+                        </Link>
+                    </div>
+                ) : (
+                    <div className="orderPageList">
+                        {orders.map((order) => (
+                            <div key={order.id} className="historyOrderCard">
+                                <div className="orderCardHeaderTop">
+                                    <div>
+                                        <h2>Order #{order.id.slice(0, 8)}...</h2>
+                                        <p>Placed on: {new Date(order.createdAt).toLocaleDateString()}</p>
+                                    </div>
+                                    <div style={{ textAlign: "right" }}>
+                                        <OrderStatusBadge status={order.status} />
+                                        <p style={{ marginTop: "8px", fontWeight: "700" }}>
+                                            {formatPrice(order.totalAmount)}
+                                        </p>
+                                    </div>
                                 </div>
-                                <strong>{formatPrice(order.totalAmount)}</strong>
-                            </div>
 
-                            <div className="order-card__items">
-                                {(order.items ?? []).map((item) => (
-                                    <span key={item.id}>
-                                        {item.productName} x {item.quantity}
-                                    </span>
-                                ))}
-                            </div>
+                                <div className="orderCardItemsList">
+                                    {order.items?.map((item, idx) => (
+                                        <span key={idx}>
+                                            {item.productName || "Product"} (x{item.quantity})
+                                            {idx < order.items.length - 1 ? ", " : ""}
+                                        </span>
+                                    ))}
+                                </div>
 
-                            <div className="order-card__actions">
-                                {canRetryPayment(order) ? (
-                                    <button
+                                <div className="orderCardActionButtons">
+                                    <Link
+                                        to={`/order/${order.id}`}
                                         className="commerce-button"
-                                        disabled={pendingOrderId === order.id}
-                                        onClick={() => handleRetry(order.id)}
-                                        type="button"
+                                        style={{ minHeight: "40px", padding: "0 20px" }}
                                     >
-                                        Retry Payment
-                                    </button>
-                                ) : null}
-                                {canCancelOrder(order) ? (
-                                    <button
-                                        className="commerce-button"
-                                        disabled={pendingOrderId === order.id}
-                                        onClick={() => handleCancel(order.id)}
-                                        type="button"
-                                    >
-                                        Cancel Order
-                                    </button>
-                                ) : null}
+                                        View Details
+                                    </Link>
+                                </div>
                             </div>
-                        </article>
-                    ))}
-                </section>
+                        ))}
+                    </div>
+                )}
             </div>
         </main>
     );
 }
-
-export default OrdersPage;

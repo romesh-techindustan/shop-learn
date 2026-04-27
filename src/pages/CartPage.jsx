@@ -140,41 +140,41 @@ function CartPage() {
     const subtotal = Number(cart?.subtotal ?? 0);
 
     return (
-        <main className="commerce-page cart-page">
-            <div className="app-shell__container">
-                <nav className="commerce-breadcrumb" aria-label="Breadcrumb">
+        <main className="ecommercePageWrapper cartPageWrapper">
+            <div className="appContainer">
+                <nav className="breadcrumbNav" aria-label="Breadcrumb">
                     <Link to="/">Home</Link>
-                    <span className="commerce-breadcrumb__divider">/</span>
-                    <span className="commerce-breadcrumb__current">Cart</span>
+                    <span className="breadcrumbSeparator">/</span>
+                    <span className="breadcrumbCurrentPage">Cart</span>
                 </nav>
 
-                <section className="cart-page__table" aria-label="Cart items">
-                    <div className="cart-page__row cart-page__head">
+                <section className="shoppingCartTable" aria-label="Cart items">
+                    <div className="cartTableRow cartTableHeader">
                         <span>Product</span>
                         <span>Price</span>
                         <span>Quantity</span>
-                        <span className="cart-page__subtotal">Subtotal</span>
+                        <span className="cartItemSubtotal">Subtotal</span>
                     </div>
 
                     {isLoading ? (
-                        <article className="cart-page__row">
+                        <article className="cartTableRow">
                             <span>Loading cart...</span>
                         </article>
                     ) : null}
 
                     {!isLoading && cartItems.length === 0 ? (
-                        <article className="cart-page__row">
+                        <article className="cartTableRow">
                             <span>Your cart is empty.</span>
                         </article>
                     ) : null}
 
                     {cartItems.map((item, index) => (
-                        <article className="cart-page__row" key={item.id}>
-                            <div className="cart-page__product">
-                                <div className="cart-page__image-wrap">
+                        <article className="cartTableRow" key={item.id}>
+                            <div className="cartProductDetails">
+                                <div className="cartProductImageWrapper">
                                     <button
                                         aria-label={`Remove ${getCartItemName(item)}`}
-                                        className="cart-page__remove"
+                                        className="cartRemoveItem"
                                         disabled={pendingAction === item.id}
                                         onClick={() =>
                                             handleRemoveItem(item.id)
@@ -191,15 +191,15 @@ function CartPage() {
                                 <span>{getCartItemName(item)}</span>
                             </div>
 
-                            <span className="cart-page__price">
+                            <span className="cartProductPrice">
                                 {formatPrice(item.unitPrice)}
                             </span>
 
-                            <label className="cart-page__quantity-cell">
-                                <span className="navbar__sr-only">
+                            <label className="cartQuantityCell">
+                                <span className="visuallyHiddenText">
                                     Quantity for {getCartItemName(item)}
                                 </span>
-                                <span className="cart-page__quantity">
+                                <span className="cartQuantityControl">
                                     <button
                                         aria-label={`Decrease quantity for ${getCartItemName(item)}`}
                                         disabled={
@@ -245,14 +245,14 @@ function CartPage() {
                                 </span>
                             </label>
 
-                            <span className="cart-page__subtotal">
+                            <span className="cartItemSubtotal">
                                 {formatPrice(item.lineTotal)}
                             </span>
                         </article>
                     ))}
                 </section>
 
-                <div className="cart-page__actions">
+                <div className="cartActionButtons">
                     <Link className="commerce-button" to="/">
                         Return To Shop
                     </Link>
@@ -265,8 +265,8 @@ function CartPage() {
                     </button>
                 </div>
 
-                <section className="cart-page__checkout">
-                    <form className="cart-page__coupon">
+                <section className="cartCheckoutButton">
+                    <form className="cartCouponSection">
                         <input
                             className="commerce-input"
                             placeholder="Coupon Code"
@@ -280,21 +280,21 @@ function CartPage() {
                         </button>
                     </form>
 
-                    <aside className="cart-total" aria-labelledby="cart-total">
-                        <h2 id="cart-total">Cart Total</h2>
-                        <div className="cart-total__line">
+                    <aside className="cartTotalBox" aria-labelledby="cartTotalBox">
+                        <h2 id="cartTotalBox">Cart Total</h2>
+                        <div className="cartTotalLineItem">
                             <span>Subtotal:</span>
                             <span>{formatPrice(subtotal)}</span>
                         </div>
-                        <div className="cart-total__line">
+                        <div className="cartTotalLineItem">
                             <span>Shipping:</span>
                             <span>Free</span>
                         </div>
-                        <div className="cart-total__line">
+                        <div className="cartTotalLineItem">
                             <span>Total:</span>
                             <span>{formatPrice(subtotal)}</span>
                         </div>
-                        <div className="cart-total__button-wrap">
+                        <div className="cartTotalButtonWrapper">
                             <Link
                                 className="commerce-button commerce-button--primary"
                                 to="/checkout"
@@ -303,7 +303,7 @@ function CartPage() {
                             </Link>
                         </div>
                         {cartItems.length ? (
-                            <div className="cart-total__button-wrap">
+                            <div className="cartTotalButtonWrapper">
                                 <button
                                     className="commerce-button"
                                     disabled={pendingAction === "clear"}

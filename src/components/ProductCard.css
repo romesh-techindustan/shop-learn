@@ -1,8 +1,8 @@
-.home-product-card {
+.productCardWrapper {
   min-width: 0;
 }
 
-.home-product-card__media {
+.productImageContainer {
   position: relative;
   min-height: 250px;
   padding: 16px;
@@ -11,85 +11,85 @@
   background: var(--product-card-backdrop), var(--home-surface, #f5f5f5);
 }
 
-.home-product-card__media--rose {
+.productBgRose {
   --product-card-backdrop:
     radial-gradient(circle at 25% 18%, rgba(255, 255, 255, 0.94), transparent 28%),
     linear-gradient(135deg, #fff7f8, #ffe9ee);
 }
 
-.home-product-card__media--neon {
+.productBgNeon {
   --product-card-backdrop:
     radial-gradient(circle at 75% 20%, rgba(124, 255, 122, 0.32), transparent 25%),
     linear-gradient(135deg, #16171b, #2b2d35);
 }
 
-.home-product-card__media--ember {
+.productBgEmber {
   --product-card-backdrop:
     radial-gradient(circle at 70% 18%, rgba(255, 91, 91, 0.24), transparent 30%),
     linear-gradient(135deg, #1b1d23, #282b34);
 }
 
-.home-product-card__media--sand {
+.productBgSand {
   --product-card-backdrop:
     radial-gradient(circle at 30% 18%, rgba(255, 255, 255, 0.82), transparent 26%),
     linear-gradient(135deg, #fff8f1, #f3ece2);
 }
 
-.home-product-card__media--mint {
+.productBgMint {
   --product-card-backdrop:
     radial-gradient(circle at 70% 18%, rgba(255, 255, 255, 0.65), transparent 22%),
     linear-gradient(135deg, #f4fffc, #e2fbf4);
 }
 
-.home-product-card__media--cocoa {
+.productBgCocoa {
   --product-card-backdrop:
     radial-gradient(circle at 20% 18%, rgba(255, 255, 255, 0.86), transparent 26%),
     linear-gradient(135deg, #fff8f3, #f5e8dc);
 }
 
-.home-product-card__media--aqua {
+.productBgAqua {
   --product-card-backdrop:
     radial-gradient(circle at 70% 14%, rgba(255, 255, 255, 0.78), transparent 26%),
     linear-gradient(135deg, #eef8ff, #ddebff);
 }
 
-.home-product-card__media--brass {
+.productBgBrass {
   --product-card-backdrop:
     radial-gradient(circle at 65% 20%, rgba(255, 255, 255, 0.72), transparent 26%),
     linear-gradient(135deg, #fff8eb, #f5ebd3);
 }
 
-.home-product-card__media--slate {
+.productBgSlate {
   --product-card-backdrop:
     radial-gradient(circle at 70% 15%, rgba(255, 255, 255, 0.8), transparent 27%),
     linear-gradient(135deg, #f6f8fb, #e7edf4);
 }
 
-.home-product-card__media--violet {
+.productBgViolet {
   --product-card-backdrop:
     radial-gradient(circle at 20% 15%, rgba(255, 255, 255, 0.82), transparent 30%),
     linear-gradient(135deg, #f7f4ff, #ece8ff);
 }
 
-.home-product-card__media--citrus {
+.productBgCitrus {
   --product-card-backdrop:
     radial-gradient(circle at 65% 18%, rgba(255, 255, 255, 0.8), transparent 28%),
     linear-gradient(135deg, #faffeb, #efffcd);
 }
 
-.home-product-card__media--midnight {
+.productBgMidnight {
   --product-card-backdrop:
     radial-gradient(circle at 70% 18%, rgba(255, 255, 255, 0.22), transparent 26%),
     linear-gradient(135deg, #112325, #244649);
 }
 
-.home-product-card__media--noir {
+.productBgNoir {
   --product-card-backdrop:
     radial-gradient(circle at 65% 16%, rgba(255, 255, 255, 0.14), transparent 24%),
     linear-gradient(135deg, #101010, #2a2a2a);
 }
 
-.home-product-card__media::after {
+.productImageContainer::after {
   content: "";
   position: absolute;
   inset: auto -10% -24% auto;
@@ -100,7 +100,7 @@
   pointer-events: none;
 }
 
-.home-product-card__badge {
+.productStatusBadge {
   position: absolute;
   top: 12px;
   left: 12px;
@@ -115,12 +115,12 @@
   text-align: center;
 }
 
-.home-product-card__badge--new {
+.productBadgeNew {
   background: var(--home-green, #00ff66);
   color: #111111;
 }
 
-.home-product-card__quick-actions {
+.productQuickActions {
   position: absolute;
   top: 12px;
   right: 12px;
@@ -130,7 +130,7 @@
   gap: 8px;
 }
 
-.home-product-card__quick-actions button {
+.productQuickActions button {
   width: 34px;
   height: 34px;
   border-radius: 50%;
@@ -139,13 +139,13 @@
   box-shadow: 0 6px 20px rgba(17, 17, 17, 0.08);
 }
 
-.home-product-card__quick-actions button img {
+.productQuickActions button img {
   width: 18px;
   height: 18px;
   object-fit: contain;
 }
 
-.home-product-card__illustration {
+.productIllustrationBox {
   min-height: 218px;
   display: flex;
   align-items: center;
@@ -153,11 +153,11 @@
   padding-top: 18px;
 }
 
-.home-product-card__illustration--image {
+.productIllustrationImage {
   padding-top: 6px;
 }
 
-.home-product-card__image {
+.productMainImage {
   width: 100%;
   max-width: 200px;
   max-height: 180px;
@@ -165,7 +165,7 @@
   filter: drop-shadow(0 20px 24px rgba(17, 17, 17, 0.14));
 }
 
-.home-product-card__cart {
+.addToCartButton {
   position: absolute;
   right: 0;
   bottom: 0;
@@ -176,18 +176,18 @@
   font-weight: 500;
 }
 
-.home-product-card__content {
+.productDetailsSection {
   padding-top: 18px;
 }
 
-.home-product-card__content h3 {
+.productDetailsSection h3 {
   margin: 0 0 10px;
   font-size: 1rem;
   line-height: 1.45;
   font-weight: 500;
 }
 
-.home-product-card__price-row {
+.productPriceRow {
   display: flex;
   align-items: center;
   gap: 12px;
@@ -195,47 +195,47 @@
   flex-wrap: wrap;
 }
 
-.home-product-card__price {
+.productCurrentPrice {
   color: var(--home-accent, #db4444);
   font-weight: 600;
 }
 
-.home-product-card__price--old {
+.productOldPrice {
   color: rgba(0, 0, 0, 0.5);
   text-decoration: line-through;
 }
 
-.home-rating {
+.productRatingContainer {
   display: flex;
   align-items: center;
   gap: 4px;
   flex-wrap: wrap;
 }
 
-.home-rating__star-image {
+.ratingStarIcon {
   width: 15px;
   height: 15px;
   object-fit: contain;
 }
 
-.home-rating__star-image.is-muted {
+.ratingStarIcon.isMutedState {
   opacity: 0.3;
 }
 
-.home-rating__count {
+.ratingReviewCount {
   margin-left: 6px;
   color: var(--home-text-muted, #7d8184);
   font-size: 0.92rem;
   font-weight: 600;
 }
 
-.home-product-card__swatches {
+.productColorSwatches {
   display: flex;
   gap: 8px;
   margin-top: 12px;
 }
 
-.home-product-card__swatch {
+.colorSwatchCircle {
   width: 20px;
   height: 20px;
   border-radius: 50%;
@@ -244,7 +244,7 @@
 }
 
 @media (max-width: 620px) {
-  .home-product-card__media {
+  .productImageContainer {
     min-height: 230px;
   }
 }

@@ -1,6 +1,6 @@
 function SectionEyebrow({ children }) {
     return (
-        <div className="home-section__eyebrow">
+        <div className="homeSectionEyebrow">
             <span aria-hidden="true" />
             <p>{children}</p>
         </div>

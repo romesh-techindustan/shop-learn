@@ -35,6 +35,7 @@ import { ProductCard } from "../components/ProductCard";
 import CountdownTimer from "../components/home/CountdownTimer";
 import SectionEyebrow from "../components/home/SectionEyebrow";
 import SectionHeader from "../components/home/SectionHeader";
+import { categoryData } from "../common/constant";
 import "./HomePage.css";
 
 const heroCategories = [
@@ -48,6 +49,12 @@ const heroCategories = [
     { label: "Groceries & Pets" },
     { label: "Health & Beauty" },
 ];
+
+function formatCategoryLabel(category) {
+    return category
+        .replace(/[-_]+/g, " ")
+        .replace(/\b\w/g, (letter) => letter.toUpperCase());
+}
 
 const flashSaleProducts = [
     {
@@ -285,8 +292,8 @@ function normalizeApiProduct(product, index) {
             product.image ||
             productFallbackImages[index % productFallbackImages.length],
         price: Number(product.price ?? 0),
-        rating: 5,
-        reviews: Number(product.stock ?? 0),
+        rating: Math.round(Number(product.averageRating ?? 0)),
+        reviews: Number(product.ratingCount ?? 0),
         theme: productThemes[index % productThemes.length],
         showCart: true,
         colors: product.color ? [product.color] : undefined,
@@ -332,11 +339,54 @@ const featuredArrivals = [
     },
 ];
 
+const heroSlides = [
+    {
+        eyebrow: "iPhone 14 Series",
+        title: "Up to 10% off Voucher",
+        image: iPhoneImage,
+        logo: appleLogo,
+        link: "/products"
+    },
+    {
+        eyebrow: "PlayStation 5",
+        title: "The Ultimate Gaming Experience",
+        image: ps5Image,
+        link: "/products"
+    },
+    {
+        eyebrow: "Smart Laptops",
+        title: "Unleash Your Productivity",
+        image: laptopImage,
+        link: "/products"
+    },
+    {
+        eyebrow: "Audio Experience",
+        title: "Immersive Sound Everywhere",
+        image: jblImage,
+        link: "/products"
+    },
+    {
+        eyebrow: "Fashion Trends",
+        title: "Step Into Style Today",
+        image: womenImage,
+        link: "/products"
+    }
+];
+
 function HomePage() {
     const navigate = useNavigate();
     const [apiProducts, setApiProducts] = useState([]);
     const [addingProductId, setAddingProductId] = useState("");
     const [apiCategories, setApiCategories] = useState([]);
+    const [currentSlide, setCurrentSlide] = useState(0);
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+            setCurrentSlide((prev) => (prev + 1) % heroSlides.length);
+        }, 5000); // Change slide every 5 seconds
+
+        return () => clearInterval(interval);
+    }, []);
 
     useEffect(() => {
         let isMounted = true;
@@ -359,21 +409,24 @@ function HomePage() {
         async function loadCategories() {
             try {
                 const { response } = await getCategories();
-                
+
+                if (isMounted) {
+                    setApiCategories(response ?? []);
+                }
             } catch {
                 if (isMounted) {
-                    setApiProducts([]);
+                    setApiCategories([]);
                 }
             }
         }
 
         loadProducts();
+        loadCategories();
 
         return () => {
             isMounted = false;
         };
     }, []);
-
     const flashProducts = getSectionProducts(
         apiProducts,
         0,
@@ -392,6 +445,12 @@ function HomePage() {
         8,
         exploreProducts,
     );
+    const browseCategories = apiCategories.length
+        ? apiCategories.slice(0, 6).map((category, index) => ({
+            label: formatCategoryLabel(category),
+            image: categoryData[index % categoryData.length].image,
+        }))
+        : categoryData;
 
     async function handleAddToCart(product) {
         if (!product.id) {
@@ -431,24 +490,24 @@ function HomePage() {
     }
 
     return (
-        <main className="home-page">
-            <section className="home-page__hero">
-                <div className="app-shell__container home-page__hero-grid">
+        <main className="homePageWrapper">
+            <section className="homePageHeroSection">
+                <div className="appContainer homeHeroGrid">
                     <aside
                         aria-label="Product Categories"
-                        className="home-page__sidebar"
+                        className="homeHeroSidebar"
                     >
-                        {heroCategories.map((category) => (
+                        {apiCategories.map((category) => (
                             <button
-                                className="home-page__sidebar-link"
-                                key={category.label}
+                                className="homeSidebarLink"
+                                key={category}
                                 type="button"
                             >
-                                <span>{category.label}</span>
+                                <span style={{ textTransform: 'capitalize' }}>{category}</span>
                                 {category.nested ? (
                                     <img
                                         alt=""
-                                        className="home-page__sidebar-arrow"
+                                        className="homeSidebarArrowIcon"
                                         src={arrowRightIcon}
                                     />
                                 ) : null}
@@ -456,42 +515,52 @@ function HomePage() {
                         ))}
                     </aside>
 
-                    <div className="home-page__hero-banner">
-                        <div className="home-page__hero-copy">
-                            <p className="home-page__hero-kicker">
-                                <img alt="" src={appleLogo} />
-                                iPhone 14 Series
+                    <div className="homeHeroBanner">
+                        <div className="homeHeroCopy">
+                            <p className="homeHeroEyebrow">
+                                {heroSlides[currentSlide].logo && <img alt="" src={heroSlides[currentSlide].logo} />}
+                                {heroSlides[currentSlide].eyebrow}
                             </p>
-                            <h1>Up to 10% off Voucher</h1>
+                            <h1>{heroSlides[currentSlide].title}</h1>
                             <Link
-                                className="home-page__hero-cta"
-                                to="/auth/sign-up"
+                                className="homeHeroCallToAction"
+                                to={heroSlides[currentSlide].link}
                             >
                                 Shop Now
                                 <img alt="" src={arrowRightIcon} />
                             </Link>
                         </div>
 
-                        <div className="home-page__hero-artwork">
-                            <img alt="iPhone 14" src={iPhoneImage} />
+                        <div className="homeHeroArtwork">
+                            <img
+                                key={currentSlide} // Force re-animation on slide change
+                                alt={heroSlides[currentSlide].eyebrow}
+                                src={heroSlides[currentSlide].image}
+                                style={{
+                                    animation: "heroFadeIn 0.8s ease-out forwards"
+                                }}
+                            />
                         </div>
 
                         <div
-                            className="home-page__hero-dots"
+                            className="homeHeroPaginationDots"
                             aria-label="Hero Slides"
                         >
-                            <span />
-                            <span />
-                            <span className="is-active" />
-                            <span />
-                            <span />
+                            {heroSlides.map((_, index) => (
+                                <span
+                                    key={index}
+                                    className={currentSlide === index ? "is-active" : ""}
+                                    onClick={() => setCurrentSlide(index)}
+                                    style={{ cursor: "pointer" }}
+                                />
+                            ))}
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section className="home-page__section">
-                <div className="app-shell__container">
+            <section className="homePageSection">
+                <div className="appContainer">
                     <SectionEyebrow>Today&apos;s</SectionEyebrow>
                     <SectionHeader
                         navigationLabel="products"
@@ -510,9 +579,9 @@ function HomePage() {
                         ))}
                     </div>
 
-                    <div className="home-page__center-action">
+                    <div className="homePageCenterAction">
                         <Link
-                            className="home-page__primary-link"
+                            className="homePrimaryLink"
                             to="/products"
                         >
                             View All Products
@@ -521,8 +590,8 @@ function HomePage() {
                 </div>
             </section>
 
-            <section className="home-page__section home-page__section--bordered">
-                <div className="app-shell__container">
+            <section className="homePageSection homePageSectionBordered">
+                <div className="appContainer">
                     <SectionEyebrow>Categories</SectionEyebrow>
                     <SectionHeader
                         navigationLabel="categories"
@@ -532,7 +601,7 @@ function HomePage() {
                     <div className="home-category-grid">
                         {browseCategories.map((category) => (
                             <article
-                                className="home-category-card"
+                                className="categoryCardBox"
                                 key={category.label}
                             >
                                 <img alt="" src={category.image} />
@@ -543,8 +612,8 @@ function HomePage() {
                 </div>
             </section>
 
-            <section className="home-page__section home-page__section--bordered">
-                <div className="app-shell__container">
+            <section className="homePageSection homePageSectionBordered">
+                <div className="appContainer">
                     <SectionEyebrow>This Month</SectionEyebrow>
                     <SectionHeader
                         actionLabel="View All"
@@ -565,36 +634,36 @@ function HomePage() {
                 </div>
             </section>
 
-            <section className="home-page__section">
-                <div className="app-shell__container">
-                    <div className="home-feature-banner">
-                        <div className="home-feature-banner__copy">
+            <section className="homePageSection">
+                <div className="appContainer">
+                    <div className="featureBannerWrapper">
+                        <div className="featureBannerCopy">
                             <p>Categories</p>
                             <h2>Enhance Your Music Experience</h2>
                             <CountdownTimer
-                                className="home-feature-banner__timer"
-                                itemClassName="home-feature-banner__timer-item"
+                                className="featureBannerTimer"
+                                itemClassName="featureBannerTimerItem"
                                 items={featureTimerValues}
                                 valueFirst
                             />
                             <Link
-                                className="home-feature-banner__button"
+                                className="featureBannerButton"
                                 to="/auth/sign-up"
                             >
                                 Buy Now!
                             </Link>
                         </div>
 
-                        <div className="home-feature-banner__art">
-                            <div className="home-feature-banner__glow" />
+                        <div className="featureBannerImage">
+                            <div className="featureBannerGlowEffect" />
                             <img alt="JBL speaker" src={jblImage} />
                         </div>
                     </div>
                 </div>
             </section>
 
-            <section className="home-page__section">
-                <div className="app-shell__container">
+            <section className="homePageSection">
+                <div className="appContainer">
                     <SectionEyebrow>Our Products</SectionEyebrow>
                     <SectionHeader
                         navigationLabel="products"
@@ -612,9 +681,9 @@ function HomePage() {
                         ))}
                     </div>
 
-                    <div className="home-page__center-action">
+                    <div className="homePageCenterAction">
                         <Link
-                            className="home-page__primary-link"
+                            className="homePrimaryLink"
                             to="/products"
                         >
                             View All Products
@@ -623,8 +692,8 @@ function HomePage() {
                 </div>
             </section>
 
-            <section className="home-page__section">
-                <div className="app-shell__container">
+            <section className="homePageSection">
+                <div className="appContainer">
                     <SectionEyebrow>Featured</SectionEyebrow>
                     <SectionHeader single title="New Arrival" />
 
@@ -633,19 +702,19 @@ function HomePage() {
                             <Link
                                 className={
                                     item.variant
-                                        ? `home-arrival-card home-arrival-card--${item.variant}`
-                                        : "home-arrival-card"
+                                        ? `arrivalCardContainer home-arrival-card--${item.variant}`
+                                        : "arrivalCardContainer"
                                 }
                                 key={item.title}
                                 to="/auth/sign-up"
                             >
-                                <div className="home-arrival-card__content">
+                                <div className="arrivalCardContent">
                                     <h3>{item.title}</h3>
                                     <p>{item.description}</p>
                                     <span>Shop Now</span>
                                 </div>
 
-                                <div className="home-arrival-card__art">
+                                <div className="arrivalCardImage">
                                     <img alt={item.imageAlt} src={item.image} />
                                 </div>
                             </Link>
@@ -654,15 +723,15 @@ function HomePage() {
                 </div>
             </section>
 
-            <section className="home-page__section home-page__section--services">
-                <div className="app-shell__container">
+            <section className="homePageSection homePageServicesSection">
+                <div className="appContainer">
                     <div className="home-service-grid">
                         {services.map((service) => (
                             <article
-                                className="home-service-card"
+                                className="homeServiceCardWrapper"
                                 key={service.title}
                             >
-                                <div className="home-service-card__icon">
+                                <div className="homeServiceCardIcon">
                                     <span>
                                         <img alt="" src={service.icon} />
                                     </span>
